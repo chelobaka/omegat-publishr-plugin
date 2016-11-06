@@ -51,7 +51,7 @@ public class PublishrFilter extends AbstractFilter {
     private final Map<String, String> tag2token;
     private final Map<String, String[]> tokens2tags;
 
-    private static final String ESCAPED_ASTERISK_TAG = "<$!$EA$!$>";
+    private static final String ESCAPED_ASTERISK_TAG = "<$@EA@$>";
 
     // Non-translatable line patterns (no groups)
     private final Pattern[] skipPatterns = {
