@@ -66,7 +66,7 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("^(#+\\**\\s)(.+)"),            // Heading
         Pattern.compile("^((?:\\*|\\d+.)\\s)(.+)"),     // List
         Pattern.compile("^((?:>+\\s*)+)(.*)"),           // Block-quote
-        Pattern.compile("^(\\[\\^\\w+\\]\\:\\s+)(.+)")  // Footnote
+        Pattern.compile("^(\\[\\^.+?\\]\\:\\s+)(.+)")   // Footnote
     };
 
     // In-text control symbols patterns (1 or more groups).
@@ -79,6 +79,7 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("(?<!\\*)(\\*{1,3})(?!\\*)"),   // Single emphasis of any type
         Pattern.compile("(~)(?:[^~]+)(~)"),              // Subscript
         Pattern.compile("(\\^)(?:[^\\^]+)(\\^)"),       // Superscript
+        Pattern.compile("(\\[\\^).+?(\\])"),            // Footnote
         Pattern.compile("(name\\()(?:[^\\)]+)(\\))"),   // Name wrapper
         Pattern.compile("(title\\()(?:[^\\)]+)(\\))"),  // Title wrapper
         Pattern.compile("(\\|)"),                       // Table column
@@ -96,6 +97,7 @@ public class PublishrFilter extends AbstractFilter {
         {{"|"}, {"<s1/>"}}, // table column separator
         {{"^", "^"}, {"<sup1>", "</sup1>"}}, // superscript
         {{"~", "~"}, {"<sub1>", "</sub1>"}}, // subscript
+        {{"[^", "]"}, {"<fn1>", "</fn1>"}},  // footnote
         {{"name(", ")"}, {"<n1>", "</n1>"}}, // name wrapper
         {{"title(", ")"}, {"<t1>", "</t1>"}}, // name wrapper
         {{"![", "](", ")"}, {"<id1>", "</id1><il1>", "</il1>"}}, // image

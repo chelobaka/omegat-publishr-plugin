@@ -10,6 +10,7 @@
 "indented ordered list item 2",
 "Unordered list item 1",
 "Unordered list item 2",
+"Refer to a wise book<fn1>wise-book</fn1>",
 "Footnote text",
 "<n1>Philip K. Dick</n1> wrote <t1>Ubik</t1>.",
 "Here is an image <id1>Image description</id1><il1>image.jpg</il1>.",

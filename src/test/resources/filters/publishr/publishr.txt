@@ -16,7 +16,9 @@ Simple paragraph.
 
 {::comment}\pagebreak{:/}
 
-[^Footnote1]: Footnote text
+Refer to a wise book[^wise-book]
+
+[^wise-book]: Footnote text
 
 name(Philip K. Dick) wrote title(Ubik).
 

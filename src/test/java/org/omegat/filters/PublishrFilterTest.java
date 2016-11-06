@@ -50,6 +50,7 @@ public class PublishrFilterTest extends TestFilterBase {
         assertEquals("indented ordered list item 2", entries.get(i++));
         assertEquals("Unordered list item 1", entries.get(i++));
         assertEquals("Unordered list item 2", entries.get(i++));
+        assertEquals("Refer to a wise book<fn1>wise-book</fn1>", entries.get(i++));
         assertEquals("Footnote text", entries.get(i++));
         assertEquals("<n1>Philip K. Dick</n1> wrote <t1>Ubik</t1>.", entries.get(i++));
         assertEquals("Here is an image <id1>Image description</id1><il1>image.jpg</il1>.", entries.get(i++));
