@@ -8,7 +8,7 @@ The format is based on kramdown syntax with minor additions.
 ## Install
 
 Please download zip file from Github release. You can get jar file from zip distribution.
-OmegaT plugin should be placed in `$HOME/.omegat/plugin` or `C:\Program Files\OmegaT\plugin`
+OmegaT plugin should be placed in `$HOME/.omegat/plugins` or `C:\Program Files\OmegaT\plugins`
 depending on your operating system.
 
 ## License
