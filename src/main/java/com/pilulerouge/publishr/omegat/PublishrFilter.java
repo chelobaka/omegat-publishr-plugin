@@ -56,7 +56,7 @@ public class PublishrFilter extends AbstractFilter {
     // Non-translatable line patterns (no groups)
     private final Pattern[] skipPatterns = {
         Pattern.compile("^[\\|\\-\\+:= ]+$"), // Table separator line
-        Pattern.compile("^\\{\\:.+\\}\\s*$"), // Comment/command line
+        Pattern.compile("^\\s*\\{\\:.+\\}\\s*$"), // Comment/command line
         Pattern.compile("^\\^\\s*$"),         // EOB marker
     };
 
