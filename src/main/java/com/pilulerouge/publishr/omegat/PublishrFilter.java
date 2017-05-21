@@ -156,7 +156,7 @@ public class PublishrFilter extends AbstractFilter {
     @Override
     public Instance[] getDefaultInstances() {
         return new Instance[] {
-            new Instance("*.page", null, null)
+                new Instance("*.page", "UTF-8", "UTF-8"),
         };
     }
 
