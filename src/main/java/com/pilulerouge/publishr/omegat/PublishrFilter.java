@@ -77,9 +77,9 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("(?<!\\*)(\\*{2})(?!\\*)(?:.*?)(?<!\\*)(\\*{2})(?!\\*)"),
         Pattern.compile("(?<!\\*)(\\*{1})(?!\\*)(?:.*?)(?<!\\*)(\\*{1})(?!\\*)"),
         Pattern.compile("(?<!\\*)(\\*{1,3})(?!\\*)"),   // Single emphasis of any type
+        Pattern.compile("(\\[\\^).+?(\\])"),            // Footnote
         Pattern.compile("(~)(?:[^~]+)(~)"),              // Subscript
         Pattern.compile("(\\^)(?:[^\\^]+)(\\^)"),       // Superscript
-        Pattern.compile("(\\[\\^).+?(\\])"),            // Footnote
         Pattern.compile("(name\\()(?:[^\\)]+)(\\))"),   // Name wrapper
         Pattern.compile("(title\\()(?:[^\\)]+)(\\))"),  // Title wrapper
         Pattern.compile("(\\|)"),                       // Table column
