@@ -66,7 +66,8 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("^(#+\\**\\s)(.+)"),            // Heading
         Pattern.compile("^((?:\\*|\\d+.)\\s)(.+)"),     // List
         Pattern.compile("^((?:>+\\s*)+)(.*)"),           // Block-quote
-        Pattern.compile("^(\\[\\^.+?\\]\\:\\s+)(.+)")   // Footnote
+        Pattern.compile("^(\\[\\^.+?\\]\\:\\s+)(.+)"),  // Footnote
+        Pattern.compile("^(\\{L\\d+?\\}\\s+)(.+)")      // Line number
     };
 
     // In-text control symbols patterns (1 or more groups).
