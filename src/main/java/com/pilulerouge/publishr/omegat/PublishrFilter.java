@@ -28,17 +28,22 @@ package com.pilulerouge.publishr.omegat;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.omegat.core.Core;
 
+import org.omegat.core.CoreEvents;
+import org.omegat.core.events.IApplicationEventListener;
 import org.omegat.filters2.AbstractFilter;
 import org.omegat.filters2.FilterContext;
 import org.omegat.filters2.Instance;
 import org.omegat.util.LinebreakPreservingReader;
+
 
 /**
  * PublishR syntax filter.
@@ -47,7 +52,7 @@ import org.omegat.util.LinebreakPreservingReader;
  */
 public class PublishrFilter extends AbstractFilter {
 
-    private static final String FILTER_NAME = "PublishR";
+    static final String FILTER_NAME = "PublishR";
     private final Map<String, String> tag2token;
     private final Map<String, String[]> tokens2tags;
 
@@ -105,6 +110,18 @@ public class PublishrFilter extends AbstractFilter {
         {{"[", "](", ")"}, {"<ld1>", "</ld1><la1>", "</la1>"}} // link
     };
 
+    private static final String EXTRA_FOOTNOTE_STRING = "[^omegat-%d]";
+    static final String EXTRA_FOOTNOTE_TAGNAME = "ef";
+    private static final Pattern EXTRA_FOOTNOTE_PATTERN = Pattern.compile(
+            String.format("<%s>(.+?)</%s>",
+                    EXTRA_FOOTNOTE_TAGNAME,
+                    EXTRA_FOOTNOTE_TAGNAME)
+    );
+
+
+    // Footnotes added in translation
+    private List<String> extraFootnotes;
+
     /**
      * Constructor.
      */
@@ -126,11 +143,28 @@ public class PublishrFilter extends AbstractFilter {
         }
     }
 
+    private static IApplicationEventListener generateIApplicationEventListener() {
+        return new IApplicationEventListener() {
+
+            @Override
+            public void onApplicationStartup() {
+                Core.getEditor().registerPopupMenuConstructors(0,
+                        new PublishrPopupMenuConstructor());
+            }
+
+            @Override
+            public void onApplicationShutdown() {
+            }
+        };
+    }
+
+
     /**
      * Plugin loader.
      */
     public static void loadPlugins() {
         Core.registerFilterClass(PublishrFilter.class);
+        CoreEvents.registerApplicationEventListener(generateIApplicationEventListener());
     }
 
     /**
@@ -176,6 +210,16 @@ public class PublishrFilter extends AbstractFilter {
         for (Entry<String, String> tagEntry : tag2token.entrySet()) {
             result = result.replace(tagEntry.getKey(), tagEntry.getValue());
         }
+        // Check for extra footnotes
+        Matcher matcher = EXTRA_FOOTNOTE_PATTERN.matcher(result);
+        int fnCounter;
+        while (matcher.find()) {
+            fnCounter = extraFootnotes.size() + 1;
+            String fnLabel = String.format(EXTRA_FOOTNOTE_STRING, fnCounter);
+            extraFootnotes.add(fnLabel + ": " + matcher.group(1));
+            result = result.replace(matcher.group(0), fnLabel);
+        }
+
         return result;
     }
 
@@ -217,6 +261,8 @@ public class PublishrFilter extends AbstractFilter {
     public void processFile(final BufferedReader reader, final BufferedWriter outfile,
             final FilterContext fc) throws IOException {
         LinebreakPreservingReader lbpr = new LinebreakPreservingReader(reader);
+
+        extraFootnotes = new ArrayList<>();
 
         String line;
         Matcher matcher;
@@ -286,5 +332,12 @@ public class PublishrFilter extends AbstractFilter {
             /* Write translated text to file */
             outfile.write(line + br);
         }
+
+        // Finally write extra footnotes created during translation
+        for (String fn : extraFootnotes) {
+            outfile.write("\n\n");
+            outfile.write(fn);
+        }
+
     }
 }
