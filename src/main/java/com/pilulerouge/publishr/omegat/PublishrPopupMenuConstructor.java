@@ -39,7 +39,8 @@ import javax.swing.text.JTextComponent;
  */
 public class PublishrPopupMenuConstructor implements IPopupMenuConstructor {
 
-    private final String extraFootnoteTagPair = String.format("<%s></%s>",
+    private final String extraFootnoteTagPair = String.format(
+            "<%s>Type footnote text here</%s>",
             PublishrFilter.EXTRA_FOOTNOTE_TAGNAME,
             PublishrFilter.EXTRA_FOOTNOTE_TAGNAME);
 
