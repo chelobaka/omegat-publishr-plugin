@@ -3,7 +3,7 @@
           with fuzzy matching, translation memory, keyword search,
           glossaries, and translation leveraging into updated projects.
 
- Copyright (C) 2016 Lev Abashkin
+ Copyright (C) 2017 Lev Abashkin
                Home page: http://www.omegat.org/
                Support center: http://groups.yahoo.com/group/OmegaT/
 
@@ -59,14 +59,14 @@ public class PublishrFilter extends AbstractFilter {
     private static final String ESCAPED_ASTERISK_TAG = "<$@EA@$>";
 
     // Non-translatable line patterns (no groups)
-    private final Pattern[] skipPatterns = {
+    private static final Pattern[] SKIP_PATTERNS = {
         Pattern.compile("^[\\|\\-\\+:= ]+$"), // Table separator line
         Pattern.compile("^\\s*\\{\\:.+\\}\\s*$"), // Comment/command line
         Pattern.compile("^\\^\\s*$"),         // EOB marker
     };
 
     // Block level patterns (2 groups)
-    private final Pattern[] blockPatterns = {
+    private static final Pattern[] BLOCK_PATTERNS = {
         Pattern.compile("^(\\s+)(.+)"),                 // Indentation
         Pattern.compile("^(#+\\**\\s)(.+)"),            // Heading
         Pattern.compile("^((?:\\*|\\d+.)\\s)(.+)"),     // List
@@ -77,7 +77,7 @@ public class PublishrFilter extends AbstractFilter {
 
     // In-text control symbols patterns (1 or more groups).
     // Order may be important.
-    private final Pattern[] tagPatterns = {
+    private static final Pattern[] TAG_PATTERNS = {
         // Emphasis pairs
         Pattern.compile("(?<!\\*)(\\*{3})(?!\\*)(?:.*?)(?<!\\*)(\\*{3})(?!\\*)"),
         Pattern.compile("(?<!\\*)(\\*{2})(?!\\*)(?:.*?)(?<!\\*)(\\*{2})(?!\\*)"),
@@ -93,7 +93,7 @@ public class PublishrFilter extends AbstractFilter {
     };
 
     // Token count in each row should be equal to tag count
-    private final String[][][] tagTable = {
+    private static final String[][][] TAG_TABLE = {
         {{"*"}, {"<e1/>"}},  // single light emphasis
         {{"**"}, {"<e2/>"}}, // single strong emphasis
         {{"***"}, {"<e3/>"}}, // single combined emphasis
@@ -129,17 +129,17 @@ public class PublishrFilter extends AbstractFilter {
         tag2token = new HashMap<>();
         tokens2tags = new HashMap<>();
         // Populate tag/token maps
-        for (int i = 0; i < tagTable.length; i++) {
+        for (int i = 0; i < TAG_TABLE.length; i++) {
             String tokens = "";
-            for (int j = 0; j < tagTable[i][0].length; j++) {
+            for (int j = 0; j < TAG_TABLE[i][0].length; j++) {
                 if (j == 0) {
-                    tokens = tagTable[i][0][j];
+                    tokens = TAG_TABLE[i][0][j];
                 } else {
-                    tokens = tokens + "\t" + tagTable[i][0][j];
+                    tokens = tokens + "\t" + TAG_TABLE[i][0][j];
                 }
-                tag2token.put(tagTable[i][1][j], tagTable[i][0][j]);
+                tag2token.put(TAG_TABLE[i][1][j], TAG_TABLE[i][0][j]);
             }
-            tokens2tags.put(tokens, tagTable[i][1]);
+            tokens2tags.put(tokens, TAG_TABLE[i][1]);
         }
     }
 
@@ -278,7 +278,7 @@ public class PublishrFilter extends AbstractFilter {
             }
 
             boolean skipLine = false;
-            for (Pattern p : skipPatterns) {
+            for (Pattern p : SKIP_PATTERNS) {
                 matcher = p.matcher(line);
                 if (matcher.matches()) {
                     outfile.write(line + br);
@@ -292,8 +292,8 @@ public class PublishrFilter extends AbstractFilter {
 
             /* Trim block-level tokens */
             int i = 0;
-            while (i < blockPatterns.length) {
-                matcher = blockPatterns[i].matcher(line);
+            while (i < BLOCK_PATTERNS.length) {
+                matcher = BLOCK_PATTERNS[i].matcher(line);
                 i++;
                 if (matcher.matches()) {
                     outfile.write(matcher.group(1));
@@ -314,7 +314,7 @@ public class PublishrFilter extends AbstractFilter {
             }
 
             /* Replace tokens with OmegaT tags */
-            for (Pattern p : tagPatterns) {
+            for (Pattern p : TAG_PATTERNS) {
                 line = replaceWithTags(line, p);
             }
 
