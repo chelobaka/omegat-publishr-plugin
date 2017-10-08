@@ -33,16 +33,26 @@ import org.omegat.gui.editor.SegmentBuilder;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Popup menu constructor.
  */
 public class PublishrPopupMenuConstructor implements IPopupMenuConstructor {
 
-    private final String extraFootnoteTagPair = String.format(
-            "<%s>Type footnote text here</%s>",
-            PublishrFilter.EXTRA_FOOTNOTE_TAGNAME,
-            PublishrFilter.EXTRA_FOOTNOTE_TAGNAME);
+    private final ResourceBundle rb;
+    private final String extraFootnoteTagPair;
+
+    public PublishrPopupMenuConstructor() {
+        ResourceBundle.Control utf8Control = new UTF8Control();
+        rb = ResourceBundle.getBundle("Messages", Locale.getDefault(), utf8Control);
+        extraFootnoteTagPair = String.format(
+                "<%s>%s</%s>",
+                PublishrFilter.EXTRA_FOOTNOTE_TAGNAME,
+                rb.getString("FOOTNOTE_TEXT_HINT"),
+                PublishrFilter.EXTRA_FOOTNOTE_TAGNAME);
+    }
 
     /**
      * Check if current file using PublishR file filter.
@@ -75,7 +85,7 @@ public class PublishrPopupMenuConstructor implements IPopupMenuConstructor {
         }
 
         JMenuItem item = new JMenuItem();
-        item.setText("Insert extra PublishR footnote");
+        item.setText(rb.getString("POPUP_MENU_INSERT_FOOTNOTE"));
         item.addActionListener(e -> Core.getEditor().insertTag(extraFootnoteTagPair));
         menu.addSeparator();
         menu.add(item);
