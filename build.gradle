@@ -19,7 +19,7 @@ buildscript {
     }
 }
 
-version = '0.6'
+version = '0.6.1'
 
 configurations {
     provided
