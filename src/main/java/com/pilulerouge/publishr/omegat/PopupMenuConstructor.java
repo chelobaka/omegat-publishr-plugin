@@ -42,7 +42,7 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
 
     public PopupMenuConstructor() {
         ResourceBundle.Control utf8Control = new UTF8Control();
-        rb = ResourceBundle.getBundle("Messages", Locale.getDefault(), utf8Control);
+        rb = ResourceBundle.getBundle("PublishR_strings", Locale.getDefault(), utf8Control);
         extraFootnoteTagPair = String.format(
                 "<%s>%s</%s>",
                 PublishrFilter.EXTRA_FOOTNOTE_TAGNAME,
