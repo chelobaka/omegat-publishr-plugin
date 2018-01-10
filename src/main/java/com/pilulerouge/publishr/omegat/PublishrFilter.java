@@ -145,7 +145,7 @@ public class PublishrFilter extends AbstractFilter {
             @Override
             public void onApplicationStartup() {
                 Core.getEditor().registerPopupMenuConstructors(0,
-                        new PublishrPopupMenuConstructor());
+                        new PopupMenuConstructor());
             }
 
             @Override

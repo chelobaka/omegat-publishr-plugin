@@ -35,12 +35,12 @@ import java.util.ResourceBundle;
 /**
  * Popup menu constructor.
  */
-public class PublishrPopupMenuConstructor implements IPopupMenuConstructor {
+public class PopupMenuConstructor implements IPopupMenuConstructor {
 
     private final ResourceBundle rb;
     private final String extraFootnoteTagPair;
 
-    public PublishrPopupMenuConstructor() {
+    public PopupMenuConstructor() {
         ResourceBundle.Control utf8Control = new UTF8Control();
         rb = ResourceBundle.getBundle("Messages", Locale.getDefault(), utf8Control);
         extraFootnoteTagPair = String.format(
