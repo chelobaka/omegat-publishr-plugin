@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    provided 'org.omegat:omegat:4.0.1'
+    provided 'org.omegat:omegat:4.1.3-01'
     provided 'commons-io:commons-io:2.4'
     provided 'commons-lang:commons-lang:2.6'
     testCompile 'junit:junit:4.12'
