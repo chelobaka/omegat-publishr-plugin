@@ -21,6 +21,7 @@
 
 package com.pilulerouge.publishr.omegat;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import org.omegat.filters2.AbstractFilter;
 import org.omegat.filters2.FilterContext;
 import org.omegat.filters2.Instance;
 import org.omegat.util.LinebreakPreservingReader;
+import org.omegat.util.Log;
 
 
 /**
@@ -248,6 +250,23 @@ public class PublishrFilter extends AbstractFilter {
             tokenChain.append(matcher.group(i));
         }
         return tokens2tags.get(tokenChain.toString());
+    }
+
+    @Override
+    public Map<String, String> changeOptions(Window parent, Map<String, String> config) {
+        try {
+            SettingsDialog dialog = new SettingsDialog(parent, config);
+            dialog.setVisible(true);
+            return dialog.getOptions();
+        } catch (Exception e) {
+            Log.log(e);
+            return null;
+        }
+    }
+
+    @Override
+    public boolean hasOptions() {
+        return true;
     }
 
     /**
