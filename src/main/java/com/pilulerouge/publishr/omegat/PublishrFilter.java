@@ -50,7 +50,7 @@ import org.omegat.util.Log;
  */
 public class PublishrFilter extends AbstractFilter {
 
-    static final String FILTER_NAME = "PublishR";
+    static final String FILTER_NAME = Util.RB.getString("FILTER_NAME");
     private final Map<String, String> tag2token;
     private final Map<String, String[]> tokens2tags;
 
