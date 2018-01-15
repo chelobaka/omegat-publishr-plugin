@@ -29,24 +29,19 @@ import org.omegat.gui.editor.SegmentBuilder;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 /**
  * Popup menu constructor.
  */
 public class PopupMenuConstructor implements IPopupMenuConstructor {
 
-    private final ResourceBundle rb;
-    private final String extraFootnoteTagPair;
+    private static final String EXTRA_FOOTNOTE_TAG;
 
-    public PopupMenuConstructor() {
-        ResourceBundle.Control utf8Control = new UTF8Control();
-        rb = ResourceBundle.getBundle("PublishR_strings", Locale.getDefault(), utf8Control);
-        extraFootnoteTagPair = String.format(
+    static {
+        EXTRA_FOOTNOTE_TAG = String.format(
                 "<%s>%s</%s>",
                 PublishrFilter.EXTRA_FOOTNOTE_TAGNAME,
-                rb.getString("FOOTNOTE_TEXT_HINT"),
+                Util.RB.getString("FOOTNOTE_TEXT_HINT"),
                 PublishrFilter.EXTRA_FOOTNOTE_TAGNAME);
     }
 
@@ -81,11 +76,10 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
         }
 
         JMenuItem item = new JMenuItem();
-        item.setText(rb.getString("POPUP_MENU_INSERT_FOOTNOTE"));
-        item.addActionListener(e -> Core.getEditor().insertTag(extraFootnoteTagPair));
+        item.setText(Util.RB.getString("POPUP_MENU_INSERT_FOOTNOTE"));
+        item.addActionListener(e -> Core.getEditor().insertTag(EXTRA_FOOTNOTE_TAG));
         menu.addSeparator();
         menu.add(item);
         menu.addSeparator();
     }
 }
-
