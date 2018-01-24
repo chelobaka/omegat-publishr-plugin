@@ -26,6 +26,9 @@ import java.util.ResourceBundle;
 
 public final class Util {
 
+    // Settings parameters
+    static final String PLAIN_SHORTCUTS = "plainShortcuts";
+
     /**
      * Resource bundle.
      */

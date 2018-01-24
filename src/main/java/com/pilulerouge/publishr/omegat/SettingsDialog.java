@@ -33,8 +33,6 @@ import java.util.TreeMap;
 
 public final class SettingsDialog extends JDialog {
 
-    private static final String PLAIN_FOOTNOTES = "plainFootnotes";
-
     private Map<String, String> options;
 
     private JPanel contentPane;
@@ -50,12 +48,12 @@ public final class SettingsDialog extends JDialog {
 
         // Set localized UI text values
         setTitle(Util.RB.getString("SETTINGS_TITLE"));
-        plainFootnotesCheckBox.setText(Util.RB.getString("PLAIN_FOOTNOTES"));
+        plainFootnotesCheckBox.setText(Util.RB.getString("PLAIN_SHORTCUTS"));
         Mnemonics.setLocalizedText(buttonOK, OStrings.getString("BUTTON_OK"));
         Mnemonics.setLocalizedText(buttonCancel, OStrings.getString("BUTTON_CANCEL"));
 
 
-        String plainFootnotes = options.get(PLAIN_FOOTNOTES);
+        String plainFootnotes = options.get(Util.PLAIN_SHORTCUTS);
         if (plainFootnotes != null && plainFootnotes.equals(Boolean.toString(true))) {
             plainFootnotesCheckBox.setSelected(true);
         } else {
@@ -101,7 +99,7 @@ public final class SettingsDialog extends JDialog {
     }
 
     private void onOK() {
-        options.put(PLAIN_FOOTNOTES, Boolean.toString(plainFootnotesCheckBox.isSelected()));
+        options.put(Util.PLAIN_SHORTCUTS, Boolean.toString(plainFootnotesCheckBox.isSelected()));
         dispose();
     }
 

@@ -116,9 +116,8 @@ public class PublishrFilter extends AbstractFilter {
                     EXTRA_FOOTNOTE_TAGNAME)
     );
 
-
-    // Footnotes added in translation
-    private List<String> extraFootnotes;
+    // Shortcut converters (v.1.0).
+    private ShortcutConverter[] shortcutConverters;
 
     /**
      * Constructor.
@@ -139,6 +138,38 @@ public class PublishrFilter extends AbstractFilter {
             }
             tokens2tags.put(tokens, TAG_TABLE[i][1]);
         }
+
+        // Initialize shortcut converters. Order is important!
+        shortcutConverters = new ShortcutConverter[]{
+            // Triple asterisk pair
+            new ShortcutConverter("(\\*{3})(.*?)(\\*{3})","e3",2,0),
+            // Double asterisk pair
+            new ShortcutConverter("(\\*{2})(.*?)(\\*{2})","e2",2,0),
+            // Single asterisk pair
+            new ShortcutConverter("(\\*)(.*?)(\\*)","e1",2,0),
+            // Triple asterisk
+            new ShortcutConverter("(\\*{3})", "e3", 0,0),
+            // Double asterisk
+            new ShortcutConverter("(\\*{2})", "e2", 0,0),
+            // Single asterisk
+            new ShortcutConverter("(\\*)", "e1", 0,0),
+            // Footnote reference
+            new ShortcutConverter("(\\[\\^.+?\\])", "f",0,0),
+            // Subscript
+            new ShortcutConverter("(~)(.+?)(~)", "s1", 2, 0),
+            // Superscript
+            new ShortcutConverter("(\\^)(.+?)(\\^)","s2", 2, 0),
+            // Table column separator
+            new ShortcutConverter("(\\|)", "s3", 0, 0),
+            // Name wrapper
+            new ShortcutConverter("(name\\()(.+?)(\\))", "n1", 2, 0),
+            // Title wrapper
+            new ShortcutConverter("(title\\()(.+?)(\\))", "t1", 2, 0),
+            // Image
+            new ShortcutConverter("(\\!\\[)(.+?)(\\]\\(.+?\\))", "i", 2, 0),
+            // Link
+            new ShortcutConverter("(\\[)(.+?)(\\]\\()(.+?)(\\))", "l", 2, 4)
+        };
     }
 
     private static IApplicationEventListener generateIApplicationEventListener() {
@@ -155,7 +186,6 @@ public class PublishrFilter extends AbstractFilter {
             }
         };
     }
-
 
     /**
      * Plugin loader.
@@ -195,7 +225,7 @@ public class PublishrFilter extends AbstractFilter {
 
     @Override
     protected boolean requirePrevNextFields() {
-        return true;
+        return false;
     }
 
     @Override
@@ -208,19 +238,26 @@ public class PublishrFilter extends AbstractFilter {
         for (Entry<String, String> tagEntry : tag2token.entrySet()) {
             result = result.replace(tagEntry.getKey(), tagEntry.getValue());
         }
-        // Check for extra footnotes
-        Matcher matcher = EXTRA_FOOTNOTE_PATTERN.matcher(result);
-        int fnCounter;
-        while (matcher.find()) {
-            fnCounter = extraFootnotes.size() + 1;
-            String fnLabel = String.format(EXTRA_FOOTNOTE_STRING, fnCounter);
-            extraFootnotes.add(fnLabel + ": " + matcher.group(1));
-            result = result.replace(matcher.group(0), fnLabel);
-        }
-
         return result;
     }
 
+    /**
+     * Find extra footnotes declarations, replace them with PublishR formatting
+     * and add footnotes to external list.
+     * @param text
+     * @param extraFootnotes
+     * @return
+     */
+    private String makeExtraFootnotes(String text, List<String> extraFootnotes) {
+        Matcher matcher = EXTRA_FOOTNOTE_PATTERN.matcher(text);
+        while (matcher.find()) {
+            int fnCounter = extraFootnotes.size() + 1;
+            String fnLabel = String.format(EXTRA_FOOTNOTE_STRING, fnCounter);
+            extraFootnotes.add(fnLabel + ": " + matcher.group(1));
+            text = text.replace(matcher.group(0), fnLabel);
+        }
+        return text;
+    }
 
     private String replaceWithTags(final String input, final Pattern pattern) {
         Matcher m = pattern.matcher(input);
@@ -277,12 +314,27 @@ public class PublishrFilter extends AbstractFilter {
             final FilterContext fc) throws IOException {
         LinebreakPreservingReader lbpr = new LinebreakPreservingReader(reader);
 
-        extraFootnotes = new ArrayList<>();
+        List<String> extraFootnotes = new ArrayList<>();
+
+        // Do we use plain shortcuts? (pre 1.0 format)
+        boolean usePlainShortcuts = Boolean.valueOf(processOptions.get(Util.PLAIN_SHORTCUTS));
+
+        // Reset shortcut converters
+        for (ShortcutConverter sc : shortcutConverters) {
+            sc.reset();
+        }
 
         String line;
         Matcher matcher;
 
+        Map<String, String> sourceExtras = new HashMap<>();
+        Map<String, String> translatedExtras = new HashMap<>();
+
         while ((line = lbpr.readLine()) != null) {
+
+            // Clear extra strings maps
+            sourceExtras.clear();
+            translatedExtras.clear();
 
             String br = lbpr.getLinebreak();
 
@@ -328,9 +380,16 @@ public class PublishrFilter extends AbstractFilter {
                 line = line.replace("\\*", ESCAPED_ASTERISK_TAG);
             }
 
-            /* Replace tokens with OmegaT tags */
-            for (Pattern p : TAG_PATTERNS) {
-                line = replaceWithTags(line, p);
+            /* Replace formatting with OmegaT shortcuts */
+            if (usePlainShortcuts) {
+                for (Pattern p : TAG_PATTERNS) {
+                    line = replaceWithTags(line, p);
+                }
+            }
+            else {
+                for (ShortcutConverter sc : shortcutConverters) {
+                    line = sc.makeShortcuts(line, sourceExtras);
+                }
             }
 
             /* Put escaped asterisks back */
@@ -341,8 +400,26 @@ public class PublishrFilter extends AbstractFilter {
             /* Translate the text */
             line = processEntry(line);
 
-            /* Replace OmegaT tags with tokens */
-            line = replaceWithTokens(line);
+            /* Translate extra strings */
+            if (!usePlainShortcuts) {
+                for (String key : sourceExtras.keySet()) {
+                    String translatedExtra = processEntry(sourceExtras.get(key), key);
+                    translatedExtras.put(sourceExtras.get(key), translatedExtra);
+                }
+            }
+
+            /* Replace OmegaT shortcuts with original formatting */
+            if (usePlainShortcuts) {
+                line = replaceWithTokens(line);
+            }
+            else {
+                for (ShortcutConverter sc : shortcutConverters) {
+                    line = sc.removeShortcuts(line, translatedExtras);
+                }
+            }
+
+            /* Check for extra footnotes */
+            line = makeExtraFootnotes(line, extraFootnotes);
 
             /* Write translated text to file */
             outfile.write(line + br);
