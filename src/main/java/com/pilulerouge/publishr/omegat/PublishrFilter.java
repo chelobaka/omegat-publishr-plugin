@@ -168,7 +168,7 @@ public class PublishrFilter extends AbstractFilter {
             // Image
             new ShortcutConverter("(\\!\\[)(.+?)(\\]\\(.+?\\))", "i", 2, 0),
             // Link
-            new ShortcutConverter("(\\[)(.+?)(\\]\\()(.+?)(\\))", "l", 2, 4)
+            new ShortcutConverter("(\\[)(.+?)(\\]\\()(.+?)(\\))", "a", 2, 4)
         };
     }
 
