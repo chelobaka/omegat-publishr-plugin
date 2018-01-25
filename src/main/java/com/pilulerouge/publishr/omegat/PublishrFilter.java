@@ -112,6 +112,11 @@ public class PublishrFilter extends AbstractFilter {
     // Shortcut converters (v.1.0).
     private ShortcutConverter[] shortcutConverters;
 
+    // Register marker
+    static {
+        Core.registerMarker(new Highlighter());
+    }
+
     /**
      * Constructor.
      */
