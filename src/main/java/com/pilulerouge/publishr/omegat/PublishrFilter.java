@@ -397,13 +397,27 @@ public class PublishrFilter extends AbstractFilter {
                 line = line.replace(ESCAPED_ASTERISK_TAG, "\\*");
             }
 
+            /* Create a comment for translation */
+            String comment = null;
+            if (!sourceExtras.isEmpty()) {
+                StringBuilder cb = new StringBuilder();
+                for (String s : sourceExtras.keySet()) {
+                    cb.append("<");
+                    cb.append(s);
+                    cb.append(">: ");
+                    cb.append(sourceExtras.get(s));
+                    cb.append("\n");
+                }
+                comment = cb.toString();
+            }
+
             /* Translate the text */
-            line = processEntry(line);
+            line = processEntry(line, comment);
 
             /* Translate extra strings */
             if (!usePlainShortcuts) {
                 for (String key : sourceExtras.keySet()) {
-                    String translatedExtra = processEntry(sourceExtras.get(key), key);
+                    String translatedExtra = processEntry(sourceExtras.get(key), String.format("<%s>", key));
                     translatedExtras.put(sourceExtras.get(key), translatedExtra);
                 }
             }
