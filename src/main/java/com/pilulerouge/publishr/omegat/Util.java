@@ -21,22 +21,49 @@
 
 package com.pilulerouge.publishr.omegat;
 
+import org.omegat.core.Core;
+import org.omegat.core.data.IProject;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
-public final class Util {
+final class Util {
 
-    // Settings parameters
     static final String PLAIN_SHORTCUTS = "plainShortcuts";
+
+    static final String EF_TAG_NAME = "ef";
+    static final Pattern EF_PATTERN = Pattern.compile(
+            String.format("(<%s>)(.+?)(</%s>)", EF_TAG_NAME, EF_TAG_NAME));
 
     /**
      * Resource bundle.
      */
-    public static final ResourceBundle RB;
+    static final ResourceBundle RB;
 
     static {
         ResourceBundle.Control utf8Control = new UTF8Control();
         RB = ResourceBundle.getBundle("PublishR_strings", Locale.getDefault(), utf8Control);
+    }
+
+    static final String FILTER_NAME = RB.getString("FILTER_NAME");
+
+    /**
+     * Check if current file using PublishR file filter.
+     * @return check result
+     */
+    static boolean isPublishrFile() {
+        String filePath = Core.getEditor().getCurrentFile();
+        if (filePath == null) {
+            return false;
+        }
+        for (IProject.FileInfo fi : Core.getProject().getProjectFiles()) {
+            if (fi.filePath.equals(filePath)
+                    && fi.filterFileFormatName.equals(FILTER_NAME)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -50,7 +50,6 @@ import org.omegat.util.Log;
  */
 public class PublishrFilter extends AbstractFilter {
 
-    static final String FILTER_NAME = Util.RB.getString("FILTER_NAME");
     private final Map<String, String> tag2token;
     private final Map<String, String[]> tokens2tags;
 
@@ -108,13 +107,7 @@ public class PublishrFilter extends AbstractFilter {
         {{"[", "](", ")"}, {"<ld1>", "</ld1><la1>", "</la1>"}} // link
     };
 
-    private static final String EXTRA_FOOTNOTE_STRING = "[^omegat-%d]";
-    static final String EXTRA_FOOTNOTE_TAGNAME = "ef";
-    private static final Pattern EXTRA_FOOTNOTE_PATTERN = Pattern.compile(
-            String.format("<%s>(.+?)</%s>",
-                    EXTRA_FOOTNOTE_TAGNAME,
-                    EXTRA_FOOTNOTE_TAGNAME)
-    );
+    private static final String EXTRA_FOOTNOTE_MARKER = "[^omegat-%d]";
 
     // Shortcut converters (v.1.0).
     private ShortcutConverter[] shortcutConverters;
@@ -203,7 +196,7 @@ public class PublishrFilter extends AbstractFilter {
 
     @Override
     public String getFileFormatName() {
-        return FILTER_NAME;
+        return Util.FILTER_NAME;
     }
 
     @Override
@@ -249,11 +242,11 @@ public class PublishrFilter extends AbstractFilter {
      * @return
      */
     private String makeExtraFootnotes(String text, List<String> extraFootnotes) {
-        Matcher matcher = EXTRA_FOOTNOTE_PATTERN.matcher(text);
+        Matcher matcher = Util.EF_PATTERN.matcher(text);
         while (matcher.find()) {
             int fnCounter = extraFootnotes.size() + 1;
-            String fnLabel = String.format(EXTRA_FOOTNOTE_STRING, fnCounter);
-            extraFootnotes.add(fnLabel + ": " + matcher.group(1));
+            String fnLabel = String.format(EXTRA_FOOTNOTE_MARKER, fnCounter);
+            extraFootnotes.add(fnLabel + ": " + matcher.group(2));
             text = text.replace(matcher.group(0), fnLabel);
         }
         return text;

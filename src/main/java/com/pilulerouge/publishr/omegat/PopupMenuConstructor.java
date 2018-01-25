@@ -35,32 +35,14 @@ import javax.swing.text.JTextComponent;
  */
 public class PopupMenuConstructor implements IPopupMenuConstructor {
 
-    private static final String EXTRA_FOOTNOTE_TAG;
+    private static final String EF_BODY;
 
     static {
-        EXTRA_FOOTNOTE_TAG = String.format(
+        EF_BODY = String.format(
                 "<%s>%s</%s>",
-                PublishrFilter.EXTRA_FOOTNOTE_TAGNAME,
-                Util.RB.getString("FOOTNOTE_TEXT_HINT"),
-                PublishrFilter.EXTRA_FOOTNOTE_TAGNAME);
-    }
-
-    /**
-     * Check if current file using PublishR file filter.
-     * @return check result
-     */
-    private static boolean isPublishrFile() {
-        String filePath = Core.getEditor().getCurrentFile();
-        if (filePath == null) {
-            return false;
-        }
-        for (IProject.FileInfo fi : Core.getProject().getProjectFiles()) {
-            if (fi.filePath.equals(filePath)
-                    && fi.filterFileFormatName.equals(PublishrFilter.FILTER_NAME)) {
-                return true;
-            }
-        }
-        return false;
+                Util.EF_TAG_NAME,
+                Util.RB.getString("FOOTNOTE_TEXT_STUB"),
+                Util.EF_TAG_NAME);
     }
 
     @Override
@@ -71,13 +53,13 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
                          final boolean isInActiveTranslation,
                          final SegmentBuilder sb) {
 
-        if (!isPublishrFile()) {
+        if (!Util.isPublishrFile()) {
             return;
         }
 
         JMenuItem item = new JMenuItem();
         item.setText(Util.RB.getString("POPUP_MENU_INSERT_FOOTNOTE"));
-        item.addActionListener(e -> Core.getEditor().insertTag(EXTRA_FOOTNOTE_TAG));
+        item.addActionListener(e -> Core.getEditor().insertTag(EF_BODY));
         menu.addSeparator();
         menu.add(item);
         menu.addSeparator();
