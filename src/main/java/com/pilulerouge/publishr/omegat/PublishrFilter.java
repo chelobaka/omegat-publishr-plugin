@@ -140,23 +140,23 @@ public class PublishrFilter extends AbstractFilter {
         // Initialize shortcut converters. Order is important!
         shortcutConverters = new ShortcutConverter[]{
             // Triple asterisk pair
-            new ShortcutConverter("(\\*{3})(.*?)(\\*{3})","e3",2,0),
+            new ShortcutConverter("(\\*{3})(.*?)(\\*{3})", "e3", 2, 0),
             // Double asterisk pair
-            new ShortcutConverter("(\\*{2})(.*?)(\\*{2})","e2",2,0),
+            new ShortcutConverter("(\\*{2})(.*?)(\\*{2})", "e2", 2, 0),
             // Single asterisk pair
-            new ShortcutConverter("(\\*)(.*?)(\\*)","e1",2,0),
+            new ShortcutConverter("(\\*)(.*?)(\\*)", "e1", 2, 0),
             // Triple asterisk
-            new ShortcutConverter("(\\*{3})", "e3", 0,0),
+            new ShortcutConverter("(\\*{3})", "e3", 0, 0),
             // Double asterisk
-            new ShortcutConverter("(\\*{2})", "e2", 0,0),
+            new ShortcutConverter("(\\*{2})", "e2", 0, 0),
             // Single asterisk
-            new ShortcutConverter("(\\*)", "e1", 0,0),
+            new ShortcutConverter("(\\*)", "e1", 0, 0),
             // Footnote reference
-            new ShortcutConverter("(\\[\\^.+?\\])", "f",0,0),
+            new ShortcutConverter("(\\[\\^.+?\\])", "f", 0, 0),
             // Subscript
             new ShortcutConverter("(~)(.+?)(~)", "s3", 2, 0),
             // Superscript
-            new ShortcutConverter("(\\^)(.+?)(\\^)","s2", 2, 0),
+            new ShortcutConverter("(\\^)(.+?)(\\^)", "s2", 2, 0),
             // Table column separator
             new ShortcutConverter("(\\|)", "s1", 0, 0),
             // Name wrapper
@@ -244,17 +244,18 @@ public class PublishrFilter extends AbstractFilter {
      * and add footnotes to external list.
      * @param text
      * @param extraFootnotes
-     * @return
+     * @return processed text
      */
-    private String makeExtraFootnotes(String text, List<String> extraFootnotes) {
+    private String makeExtraFootnotes(final String text, final List<String> extraFootnotes) {
         Matcher matcher = Util.EF_PATTERN.matcher(text);
+        String result = text;
         while (matcher.find()) {
             int fnCounter = extraFootnotes.size() + 1;
             String fnLabel = String.format(EXTRA_FOOTNOTE_MARKER, fnCounter);
             extraFootnotes.add(fnLabel + ": " + matcher.group(2));
-            text = text.replace(matcher.group(0), fnLabel);
+            result = result.replace(matcher.group(0), fnLabel);
         }
-        return text;
+        return result;
     }
 
     private String replaceWithTags(final String input, final Pattern pattern) {
@@ -288,7 +289,8 @@ public class PublishrFilter extends AbstractFilter {
     }
 
     @Override
-    public Map<String, String> changeOptions(Window parent, Map<String, String> config) {
+    public Map<String, String> changeOptions(final Window parent,
+                                             final Map<String, String> config) {
         try {
             SettingsDialog dialog = new SettingsDialog(parent, config);
             dialog.setVisible(true);
@@ -383,8 +385,7 @@ public class PublishrFilter extends AbstractFilter {
                 for (Pattern p : TAG_PATTERNS) {
                     line = replaceWithTags(line, p);
                 }
-            }
-            else {
+            } else {
                 for (ShortcutConverter sc : shortcutConverters) {
                     line = sc.makeShortcuts(line, sourceExtras);
                 }
@@ -415,7 +416,8 @@ public class PublishrFilter extends AbstractFilter {
             /* Translate extra strings */
             if (!usePlainShortcuts) {
                 for (String key : sourceExtras.keySet()) {
-                    String translatedExtra = processEntry(sourceExtras.get(key), String.format("<%s>", key));
+                    String translatedExtra = processEntry(sourceExtras.get(key),
+                            String.format("<%s>", key));
                     translatedExtras.put(sourceExtras.get(key), translatedExtra);
                 }
             }
@@ -423,8 +425,7 @@ public class PublishrFilter extends AbstractFilter {
             /* Replace OmegaT shortcuts with original formatting */
             if (usePlainShortcuts) {
                 line = replaceWithTokens(line);
-            }
-            else {
+            } else {
                 for (ShortcutConverter sc : shortcutConverters) {
                     line = sc.removeShortcuts(line, translatedExtras);
                 }

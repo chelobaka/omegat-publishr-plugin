@@ -39,7 +39,8 @@ public class ShortcutConverter {
     private Map<String, String> shortcutMap; // Label -> shortcut
     private Map<String, String> labelMap;  // Shortcut -> actual text
 
-    ShortcutConverter(String regexp, String shortcutName, int textGroup, int extraGroup) {
+    ShortcutConverter(final String regexp, final String shortcutName,
+                      final int textGroup, final int extraGroup) {
         this.pattern = Pattern.compile(regexp);
         this.shortcutName = shortcutName;
         this.textGroup = textGroup;
@@ -60,12 +61,14 @@ public class ShortcutConverter {
      * @param extras    extra strings container
      * @return          processed text
      */
-    public String makeShortcuts(String text, Map<String, String> extras) {
+    public String makeShortcuts(final String text, final Map<String, String> extras) {
 
         Matcher matcher = pattern.matcher(text);
 
         // Return early if no matches found in text
-        if (!matcher.find()) return text;
+        if (!matcher.find()) {
+            return text;
+        }
 
         StringBuilder result = new StringBuilder();
         int lastMatcherPosition = 0;
@@ -92,8 +95,7 @@ public class ShortcutConverter {
                 }
                 if (isFirstShortcut) {
                     firstLabelBuilder.append(matcher.group(i));
-                }
-                else {
+                } else {
                     lastLabelBuilder.append(matcher.group(i));
                 }
             }
@@ -104,30 +106,29 @@ public class ShortcutConverter {
             // Check if this shortcut is already registered
             // Assume tabulation cannot be found in any labels
             String searchLabel = firstLabel + "\t" + lastLabel;
-            String shortcutName = shortcutMap.get(searchLabel);
+            String scName = shortcutMap.get(searchLabel);
 
             // If not then create a new shortcut
             boolean newShortcutName = false;
-            if (shortcutName == null) {
-                shortcutName = getShortcutName();
+            if (scName == null) {
+                scName = getShortcutName();
                 newShortcutName = true;
             }
 
             // Save extra text if any
             if (extraText != null) {
-                extras.put(shortcutName, extraText);
+                extras.put(scName, extraText);
             }
 
             // Create actual shortcuts
             String openingSC, closingSC;
             if (textGroup == 0) {
                 // Self-closing shortcut
-                openingSC = "<" + shortcutName + "/>";
+                openingSC = "<" + scName + "/>";
                 closingSC = "";
-            }
-            else {
-                openingSC = "<" + shortcutName + ">";
-                closingSC = "</" + shortcutName + ">";
+            } else {
+                openingSC = "<" + scName + ">";
+                closingSC = "</" + scName + ">";
             }
 
             // Save inverse mapping
@@ -157,11 +158,11 @@ public class ShortcutConverter {
      * @param extras    mapping of source extra string to translated ones
      * @return          restored text
      */
-    public String removeShortcuts(String text, Map<String, String> extras) {
-
+    public String removeShortcuts(final String text, final Map<String, String> extras) {
+        String result = text;
         // Replace shortcuts with actual formatting
         for (String shortcut : labelMap.keySet()) {
-            if (text.contains(shortcut)) {
+            if (result.contains(shortcut)) {
 
                 // Replace extra strings first
                 String replacement = labelMap.get(shortcut);
@@ -171,11 +172,10 @@ public class ShortcutConverter {
                     }
                 }
 
-                text = text.replaceAll(shortcut, replacement);
+                result = result.replaceAll(shortcut, replacement);
             }
         }
-
-        return text;
+        return result;
     }
 
     /**
@@ -193,8 +193,7 @@ public class ShortcutConverter {
     private String getShortcutName() {
         if (useCounter) {
             return String.format("%s%d", shortcutName, ++counter);
-        }
-        else {
+        } else {
             return shortcutName;
         }
     }

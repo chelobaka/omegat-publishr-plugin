@@ -30,10 +30,16 @@ import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-
+/**
+ * UTF-8 aware resource bundle control.
+ */
 public class UTF8Control extends ResourceBundle.Control {
-    public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader,
-                                    boolean reload) throws IllegalAccessException, InstantiationException, IOException {
+
+    public ResourceBundle newBundle(final String baseName,
+                                    final Locale locale,
+                                    final String format,
+                                    final ClassLoader loader,
+                                    final boolean reload) throws IOException {
         // The below is a copy of the default implementation.
         String bundleName = toBundleName(baseName, locale);
         String resourceName = toResourceName(bundleName, "properties");

@@ -34,12 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+/**
+ * Marker for custom footnotes.
+ */
 class Highlighter implements IMarker {
 
     private static final AttributeSet TAG_ATTRIBUTES = Styles
-            .createAttributeSet(new Color(0, 165,23), null, null, null);
+            .createAttributeSet(new Color(0, 165, 23), null, null, null);
     private static final AttributeSet EF_ATTRIBUTES = Styles
-            .createAttributeSet(new Color(56,155,205), null, null, null);
+            .createAttributeSet(new Color(56, 155, 205), null, null, null);
 
     private static final Map<Integer, AttributeSet> HIGHLIGHT_ATTRS;
     static {
@@ -49,8 +52,8 @@ class Highlighter implements IMarker {
         HIGHLIGHT_ATTRS.put(3, TAG_ATTRIBUTES);
     }
 
-    public List<Mark> getMarksForEntry(SourceTextEntry ste, String sourceText,
-                                       String translationText, boolean isActive) {
+    public List<Mark> getMarksForEntry(final SourceTextEntry ste, final String sourceText,
+                                       final String translationText, final boolean isActive) {
 
         if (translationText == null || !Util.isPublishrFile()) {
             return null;
