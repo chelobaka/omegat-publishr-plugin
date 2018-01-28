@@ -57,8 +57,8 @@ public class PublishrFilter extends AbstractFilter {
 
     // Non-translatable line patterns (no groups)
     private static final Pattern[] SKIP_PATTERNS = {
-        Pattern.compile("^[\\|\\-\\+:= ]+$"), // Table separator line
-        Pattern.compile("^\\s*\\{\\:.+\\}\\s*$"), // Comment/command line
+        Pattern.compile("^[|\\-+:= ]+$"),     // Table separator line
+        Pattern.compile("^\\s*\\{:.+}\\s*$"), // Comment/command line
         Pattern.compile("^\\^\\s*$"),         // EOB marker
     };
 
@@ -67,9 +67,9 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("^(\\s+)(.+)"),                 // Indentation
         Pattern.compile("^(#+\\**\\s)(.+)"),            // Heading
         Pattern.compile("^((?:\\*|\\d+.)\\s)(.+)"),     // List
-        Pattern.compile("^((?:>+\\s*)+)(.*)"),           // Block-quote
-        Pattern.compile("^(\\[\\^.+?\\]\\:\\s+)(.+)"),  // Footnote
-        Pattern.compile("^(\\{L\\d+?\\}\\s+)(.+)")      // Line number
+        Pattern.compile("^((?:>+\\s*)+)(.*)"),          // Block-quote
+        Pattern.compile("^(\\[\\^.+?]:\\s+)(.+)"),      // Footnote
+        Pattern.compile("^(\\{L\\d+?}\\s+)(.+)")        // Line number
     };
 
     // In-text control symbols patterns (1 or more groups).
@@ -80,13 +80,13 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("(?<!\\*)(\\*{2})(?!\\*)(?:.*?)(?<!\\*)(\\*{2})(?!\\*)"),
         Pattern.compile("(?<!\\*)(\\*{1})(?!\\*)(?:.*?)(?<!\\*)(\\*{1})(?!\\*)"),
         Pattern.compile("(?<!\\*)(\\*{1,3})(?!\\*)"),   // Single emphasis of any type
-        Pattern.compile("(\\[\\^).+?(\\])"),            // Footnote
-        Pattern.compile("(~)(?:[^~]+)(~)"),              // Subscript
-        Pattern.compile("(\\^)(?:[^\\^]+)(\\^)"),       // Superscript
-        Pattern.compile("(name\\()(?:[^\\)]+)(\\))"),   // Name wrapper
-        Pattern.compile("(title\\()(?:[^\\)]+)(\\))"),  // Title wrapper
-        Pattern.compile("(\\|)"),                       // Table column
-        Pattern.compile("(!?\\[)(?:[^\\]]*)(\\]\\()(?:[^\\)]+)(\\))") // Image/link
+        Pattern.compile("(\\[\\^).+?(])"),          // Footnote
+        Pattern.compile("(~).+?(~)"),               // Subscript
+        Pattern.compile("(\\^).+?(\\^)"),           // Superscript
+        Pattern.compile("(name\\().+?(\\))"),       // Name wrapper
+        Pattern.compile("(title\\().+?(\\))"),      // Title wrapper
+        Pattern.compile("(\\|)"),                   // Table column
+        Pattern.compile("(!?\\[).*?(]\\().+?(\\))") // Image/link
     };
 
     // Token count in each row should be equal to tag count
