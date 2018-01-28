@@ -22,7 +22,6 @@
 package com.pilulerouge.publishr.omegat;
 
 import org.omegat.core.Core;
-import org.omegat.core.data.IProject;
 import org.omegat.gui.editor.IPopupMenuConstructor;
 import org.omegat.gui.editor.SegmentBuilder;
 
