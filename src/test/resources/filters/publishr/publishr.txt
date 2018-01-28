@@ -30,8 +30,10 @@ Let's ***try*** some *formatting*.
 Water's chemical formula is H~2~O.
 Water is **essential**!
 1^st^ and 2^nd^ elements are *H* and *He*.
-
+{: .lyrics }
 Second image ![description](image2.jpg)
+
+{::comment}\pagebreak{:/}
 
 Single ***combined, strong** and ligh*t emphasis.
 Some escaped asterisks \* \**light*, **strong**\*, and *more\**.
@@ -49,3 +51,5 @@ Some escaped asterisks \* \**light*, **strong**\*, and *more\**.
 | Footer row[^footer-note]
 
 [^footer-note]: Footer footnote
+
+{L123} Numbered line.

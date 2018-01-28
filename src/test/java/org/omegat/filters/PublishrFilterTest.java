@@ -82,6 +82,7 @@ public class PublishrFilterTest extends TestFilterBase {
         assertEquals("<s1/> 2 line", entries.get(i++));
         assertEquals("<s1/> Footer row<fn1>footer-note</fn1>", entries.get(i++));
         assertEquals("Footer footnote", entries.get(i++));
+        assertEquals("Numbered line.", entries.get(i++));
     }
 
     @Test
@@ -122,6 +123,7 @@ public class PublishrFilterTest extends TestFilterBase {
         assertEquals("<s1/> 2 line", entries.get(i++));
         assertEquals("<s1/> Footer row<f2/>", entries.get(i++));
         assertEquals("Footer footnote", entries.get(i++));
+        assertEquals("Numbered line.", entries.get(i++));
     }
 
     @Test
