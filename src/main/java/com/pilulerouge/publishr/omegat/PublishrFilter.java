@@ -154,11 +154,11 @@ public class PublishrFilter extends AbstractFilter {
             // Footnote reference
             new ShortcutConverter("(\\[\\^.+?\\])", "f",0,0),
             // Subscript
-            new ShortcutConverter("(~)(.+?)(~)", "s1", 2, 0),
+            new ShortcutConverter("(~)(.+?)(~)", "s3", 2, 0),
             // Superscript
             new ShortcutConverter("(\\^)(.+?)(\\^)","s2", 2, 0),
             // Table column separator
-            new ShortcutConverter("(\\|)", "s3", 0, 0),
+            new ShortcutConverter("(\\|)", "s1", 0, 0),
             // Name wrapper
             new ShortcutConverter("(name\\()(.+?)(\\))", "n1", 2, 0),
             // Title wrapper
