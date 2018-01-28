@@ -29,17 +29,25 @@ import org.omegat.util.gui.Styles;
 import javax.swing.text.AttributeSet;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 class Highlighter implements IMarker {
 
-    private final static Color TAG_FONT_COLOR = new Color(34, 200,220);
+    private static final AttributeSet TAG_ATTRIBUTES = Styles
+            .createAttributeSet(new Color(0, 165,23), null, null, null);
+    private static final AttributeSet EF_ATTRIBUTES = Styles
+            .createAttributeSet(new Color(56,155,205), null, null, null);
 
-    private static final AttributeSet ATTRIBUTES = Styles
-            .createAttributeSet(TAG_FONT_COLOR, null, null, null);
-
-    private final static int[] HIGHLIGHT_GROUPS = {1, 3};
+    private static final Map<Integer, AttributeSet> HIGHLIGHT_ATTRS;
+    static {
+        HIGHLIGHT_ATTRS = new HashMap<>();
+        HIGHLIGHT_ATTRS.put(1, TAG_ATTRIBUTES);
+        HIGHLIGHT_ATTRS.put(2, EF_ATTRIBUTES);
+        HIGHLIGHT_ATTRS.put(3, TAG_ATTRIBUTES);
+    }
 
     public List<Mark> getMarksForEntry(SourceTextEntry ste, String sourceText,
                                        String translationText, boolean isActive) {
@@ -56,10 +64,10 @@ class Highlighter implements IMarker {
         List<Mark> result = new ArrayList<>();
 
         do {
-            for (int g : HIGHLIGHT_GROUPS) {
+            for (int g = 1; g <= matcher.groupCount(); g++) {
                 Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, matcher.start(g), matcher.end(g));
                 mark.painter = null;
-                mark.attributes = ATTRIBUTES;
+                mark.attributes = HIGHLIGHT_ATTRS.get(g);
                 mark.toolTipText = Util.RB.getString("FOOTNOTE_HINT");
                 result.add(mark);
             }
