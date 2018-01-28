@@ -161,14 +161,16 @@ public class ShortcutConverter {
     public String removeShortcuts(final String text, final Map<String, String> extras) {
         String result = text;
         // Replace shortcuts with actual formatting
-        for (String shortcut : labelMap.keySet()) {
+        for (Map.Entry<String, String> scEntry : labelMap.entrySet()) {
+            String shortcut = scEntry.getKey();
             if (result.contains(shortcut)) {
 
                 // Replace extra strings first
-                String replacement = labelMap.get(shortcut);
+                String replacement = scEntry.getValue();
                 if (extraGroup > 0) {
-                    for (String k : extras.keySet()) {
-                        replacement = replacement.replaceAll(k, extras.get(k));
+                    for (Map.Entry<String, String> egEntry : extras.entrySet()) {
+                        replacement = replacement.replaceAll(egEntry.getKey(),
+                                egEntry.getValue());
                     }
                 }
 

@@ -400,11 +400,11 @@ public class PublishrFilter extends AbstractFilter {
             String comment = null;
             if (!sourceExtras.isEmpty()) {
                 StringBuilder cb = new StringBuilder();
-                for (String s : sourceExtras.keySet()) {
+                for (Map.Entry<String, String> e : sourceExtras.entrySet()) {
                     cb.append("<");
-                    cb.append(s);
+                    cb.append(e.getKey());
                     cb.append(">: ");
-                    cb.append(sourceExtras.get(s));
+                    cb.append(e.getValue());
                     cb.append("\n");
                 }
                 comment = cb.toString();
@@ -415,10 +415,10 @@ public class PublishrFilter extends AbstractFilter {
 
             /* Translate extra strings */
             if (!usePlainShortcuts) {
-                for (String key : sourceExtras.keySet()) {
-                    String translatedExtra = processEntry(sourceExtras.get(key),
-                            String.format("<%s>", key));
-                    translatedExtras.put(sourceExtras.get(key), translatedExtra);
+                for (Map.Entry<String, String> e : sourceExtras.entrySet()) {
+                    String translatedExtra = processEntry(e.getValue(),
+                            String.format("<%s>", e.getKey()));
+                    translatedExtras.put(e.getValue(), translatedExtra);
                 }
             }
 
