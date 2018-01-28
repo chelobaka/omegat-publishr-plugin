@@ -28,9 +28,9 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-final class Util {
+public final class Util {
 
-    static final String PLAIN_SHORTCUTS = "plainShortcuts";
+    public static final String PLAIN_SHORTCUTS = "plainShortcuts";
 
     static final String EF_TAG_NAME = "ef";
     static final Pattern EF_PATTERN = Pattern.compile(

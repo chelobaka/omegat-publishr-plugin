@@ -22,13 +22,16 @@ Refer to a wise book[^wise-book]
 
 name(Philip K. Dick) wrote title(Ubik).
 
-Here is an image ![Image description](image.jpg).
-And here is a link [Link description](http://foo.bar).
+Here is an image ![Image description](image1.jpg).
+And here is a link [Link description](http://first.url).
+Second link [Link description](http://second.url).
 
-Let's ***try*** some *formating*.
+Let's ***try*** some *formatting*.
 Water's chemical formula is H~2~O.
 Water is **essential**!
 1^st^ and 2^nd^ elements are *H* and *He*.
+
+Second image ![description](image2.jpg)
 
 Single ***combined, strong** and ligh*t emphasis.
 Some escaped asterisks \* \**light*, **strong**\*, and *more\**.
@@ -43,4 +46,6 @@ Some escaped asterisks \* \**light*, **strong**\*, and *more\**.
 | Second body
 | 2 line
 |===
-| Footer row
+| Footer row[^footer-note]
+
+[^footer-note]: Footer footnote
