@@ -25,9 +25,11 @@ import org.omegat.core.Core;
 import org.omegat.gui.editor.IPopupMenuConstructor;
 import org.omegat.gui.editor.SegmentBuilder;
 
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
+import java.util.Map;
 
 /**
  * Popup menu constructor.
@@ -56,11 +58,25 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
             return;
         }
 
+        JMenu pluginSubMenu = new JMenu();
+        pluginSubMenu.setText(Util.RB.getString("POPUP_MENU_NAME"));
+
+        for (Map.Entry<String, FormattingElement> entry : Util.FORMAT_ELEMENT_MAP.entrySet()) {
+            JMenuItem item = new JMenuItem();
+            item.setText(Util.RB.getString(entry.getKey()));
+            String insertion = entry.getValue().format();
+            item.addActionListener(e -> Core.getEditor().insertText(insertion));
+            pluginSubMenu.add(item);
+        }
+
         JMenuItem item = new JMenuItem();
         item.setText(Util.RB.getString("POPUP_MENU_INSERT_FOOTNOTE"));
         item.addActionListener(e -> Core.getEditor().insertTag(EF_BODY));
+        pluginSubMenu.addSeparator();
+        pluginSubMenu.add(item);
+
         menu.addSeparator();
-        menu.add(item);
+        menu.add(pluginSubMenu);
         menu.addSeparator();
     }
 }

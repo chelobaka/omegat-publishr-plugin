@@ -48,7 +48,7 @@ public final class SettingsDialog extends JDialog {
 
         // Set localized UI text values
         setTitle(Util.RB.getString("SETTINGS_TITLE"));
-        plainFootnotesCheckBox.setText(Util.RB.getString("PLAIN_SHORTCUTS"));
+        plainFootnotesCheckBox.setText(Util.RB.getString("SETTINGS_PLAIN_SHORTCUTS"));
         Mnemonics.setLocalizedText(buttonOK, OStrings.getString("BUTTON_OK"));
         Mnemonics.setLocalizedText(buttonCancel, OStrings.getString("BUTTON_CANCEL"));
 

@@ -24,9 +24,29 @@ package com.pilulerouge.publishr.omegat;
 import org.omegat.core.Core;
 import org.omegat.core.data.IProject;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
+
+class FormattingElement {
+    private final String left;
+    private final String right;
+
+    FormattingElement(String left, String right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    String format() {
+        String selectedText = Core.getEditor().getSelectedText();
+        if (selectedText == null) {
+            selectedText = "";
+        }
+        return String.format("%s%s%s", left, selectedText, right);
+    }
+}
 
 public final class Util {
 
@@ -35,6 +55,17 @@ public final class Util {
     static final String EF_TAG_NAME = "ef";
     static final Pattern EF_PATTERN = Pattern.compile(
             String.format("(<%s>)(.+?)(</%s>)", EF_TAG_NAME, EF_TAG_NAME));
+
+
+    final static Map<String, FormattingElement> FORMAT_ELEMENT_MAP = new LinkedHashMap<>();
+    static {
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_EMPHASIS", new FormattingElement("*", "*"));
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_STRONG", new FormattingElement("**", "**"));
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_SUPERSCRIPT", new FormattingElement("^", "^"));
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_SUBSCRIPT", new FormattingElement("~", "~"));
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_NAME", new FormattingElement("name(", ")"));
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_TITLE", new FormattingElement("title(", ")"));
+    };
 
     /**
      * Resource bundle.
