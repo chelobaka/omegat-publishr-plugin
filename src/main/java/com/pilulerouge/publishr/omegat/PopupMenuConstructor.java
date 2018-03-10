@@ -29,12 +29,19 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.text.JTextComponent;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Popup menu constructor.
  */
 public class PopupMenuConstructor implements IPopupMenuConstructor {
+
+    private static final Pattern SHORTCUT_PAIR = Pattern.compile("(<([a-z]\\d+)>).+?(</\\2>)");
+    private static final Pattern SHORTCUT_SINGLE = Pattern.compile("<([a-z]\\d+)/>");
 
     private static final String EF_BODY;
 
@@ -58,9 +65,44 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
             return;
         }
 
+        String selection = Core.getEditor().getSelectedText();
+        if (selection == null) {
+            selection = "";
+        }
+
         JMenu pluginSubMenu = new JMenu();
         pluginSubMenu.setText(Util.RB.getString("POPUP_MENU_NAME"));
 
+        /* Found shortcuts */
+        String src = Core.getEditor().getCurrentEntry().getSrcText();
+        Set<String> foundShortcuts = new HashSet<>();
+        Matcher matcher = SHORTCUT_PAIR.matcher(src);
+        while (matcher.find()) {
+
+            if (foundShortcuts.contains(matcher.group(2))) {
+                continue;
+            } else {
+                foundShortcuts.add(matcher.group(2));
+            }
+
+            JMenuItem item = new JMenuItem();
+            item.setText(matcher.group(1) + "…" + matcher.group(3));
+            String insertion = matcher.group(1) + selection + matcher.group(3);
+            item.addActionListener(e -> Core.getEditor().insertText(insertion));
+            pluginSubMenu.add(item);
+        }
+
+        matcher = SHORTCUT_SINGLE.matcher(src);
+        while (matcher.find()) {
+            String shortcut = matcher.group(0);
+            JMenuItem item = new JMenuItem();
+            item.setText(shortcut);
+            item.addActionListener(e -> Core.getEditor().insertText(shortcut));
+            pluginSubMenu.add(item);
+        }
+        pluginSubMenu.addSeparator();
+
+        /* Original formatting items */
         for (Map.Entry<String, FormattingElement> entry : Util.FORMAT_ELEMENT_MAP.entrySet()) {
             JMenuItem item = new JMenuItem();
             item.setText(Util.RB.getString(entry.getKey()));
@@ -69,6 +111,7 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
             pluginSubMenu.add(item);
         }
 
+        /* Custom footnote item */
         JMenuItem item = new JMenuItem();
         item.setText(Util.RB.getString("POPUP_MENU_INSERT_FOOTNOTE"));
         item.addActionListener(e -> Core.getEditor().insertTag(EF_BODY));
