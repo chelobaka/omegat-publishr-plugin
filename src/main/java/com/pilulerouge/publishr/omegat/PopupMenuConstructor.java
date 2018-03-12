@@ -106,7 +106,7 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
         for (Map.Entry<String, FormattingElement> entry : Util.FORMAT_ELEMENT_MAP.entrySet()) {
             JMenuItem item = new JMenuItem();
             item.setText(Util.RB.getString(entry.getKey()));
-            String insertion = entry.getValue().format();
+            String insertion = entry.getValue().format(selection);
             item.addActionListener(e -> Core.getEditor().insertText(insertion));
             pluginSubMenu.add(item);
         }

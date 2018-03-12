@@ -28,23 +28,49 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Formatting element used for adding original formatting
+ * and highlighting it in translation.
+ */
 class FormattingElement {
     private final String left;
     private final String right;
+    private final Pattern pattern;
 
-    FormattingElement(String left, String right) {
+    FormattingElement(String left, String right, String re) {
         this.left = left;
         this.right = right;
+        if (re == null) {
+            pattern = null;
+        } else {
+            pattern = Pattern.compile(re);
+        }
     }
 
-    String format() {
-        String selectedText = Core.getEditor().getSelectedText();
-        if (selectedText == null) {
-            selectedText = "";
+    /**
+     * Apply formatting to text.
+     * @param text source text
+     * @return formatted text
+     */
+    String format(String text) {
+        return String.format("%s%s%s", left, text, right);
+    }
+
+    /**
+     * Return Matcher instance for given text searching
+     * for this formatting element.
+     * Can return null if no pattern was passed on creation.
+     * @param text text to search in
+     * @return Matcher instance
+     */
+    Matcher match(String text) {
+        if (pattern == null) {
+            return null;
         }
-        return String.format("%s%s%s", left, selectedText, right);
+        return pattern.matcher(text);
     }
 }
 
@@ -56,15 +82,28 @@ public final class Util {
     static final Pattern EF_PATTERN = Pattern.compile(
             String.format("(<%s>)(.+?)(</%s>)", EF_TAG_NAME, EF_TAG_NAME));
 
+    /**
+     * Formatting elements data
+     * 1. ResourceBundle name for popup menu
+     * 2. Left formatting part
+     * 3. Right formatting part
+     * 4. RegExp for highlighting, can be null
+     */
+    private final static String[][] FORMAT_ELEMENTS = {
+        {"POPUP_MENU_FORMAT_EMPHASIS", "*", "*", null},
+        {"POPUP_MENU_FORMAT_STRONG", "**", "**", null},
+        {"POPUP_MENU_FORMAT_SUPERSCRIPT", "^", "^", null},
+        {"POPUP_MENU_FORMAT_SUBSCRIPT", "~", "~", null},
+        {"POPUP_MENU_FORMAT_NAME", "name(", ")", null},
+        {"POPUP_MENU_FORMAT_TITLE", "title(", ")", null}
+    };
+
 
     final static Map<String, FormattingElement> FORMAT_ELEMENT_MAP = new LinkedHashMap<>();
     static {
-        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_EMPHASIS", new FormattingElement("*", "*"));
-        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_STRONG", new FormattingElement("**", "**"));
-        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_SUPERSCRIPT", new FormattingElement("^", "^"));
-        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_SUBSCRIPT", new FormattingElement("~", "~"));
-        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_NAME", new FormattingElement("name(", ")"));
-        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_TITLE", new FormattingElement("title(", ")"));
+        for (String[] fe : FORMAT_ELEMENTS) {
+            FORMAT_ELEMENT_MAP.put(fe[0], new FormattingElement(fe[1], fe[2], fe[3]));
+        }
     };
 
     /**
