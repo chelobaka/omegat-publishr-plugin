@@ -103,10 +103,10 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
         pluginSubMenu.addSeparator();
 
         /* Original formatting items */
-        for (Map.Entry<String, FormattingElement> entry : Util.FORMAT_ELEMENT_MAP.entrySet()) {
+        for (Map.Entry<String, Element> entry : Util.FORMAT_ELEMENT_MAP.entrySet()) {
             JMenuItem item = new JMenuItem();
             item.setText(Util.RB.getString(entry.getKey()));
-            String insertion = entry.getValue().format(selection);
+            String insertion = Util.FORMATTER.applyElement(selection, entry.getValue());
             item.addActionListener(e -> Core.getEditor().insertText(insertion));
             pluginSubMenu.add(item);
         }

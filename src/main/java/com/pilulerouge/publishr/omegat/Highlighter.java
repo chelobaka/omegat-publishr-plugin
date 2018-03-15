@@ -34,6 +34,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+class FormatSignature {
+    final BlockType type;
+    Element element;
+
+    public FormatSignature(BlockType type, Element element) {
+        this.type = type;
+        if (type == BlockType.TEXT) {
+            this.element = null;
+        } else {
+            this.element = element;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return ((FormatSignature) o).type == type && ((FormatSignature) o).element == element;
+    }
+}
+
+class FormatSpan implements Comparable<FormatSpan> {
+    final int begin;
+    final int end;
+    final FormatSignature signature;
+
+    public FormatSpan(BlockType type, Element element, int begin, int end) {
+        this.begin = begin;
+        this.end = end;
+        signature = new FormatSignature(type, element);
+    }
+
+    public FormatSpan(FormatSignature signature, int begin, int end) {
+        this.begin = begin;
+        this.end = end;
+        this.signature = signature;
+    }
+
+    @Override
+    public int compareTo(FormatSpan that) {
+        return Integer.compare(this.begin, that.begin);
+    }
+}
+
 /**
  * Marker for custom footnotes.
  */

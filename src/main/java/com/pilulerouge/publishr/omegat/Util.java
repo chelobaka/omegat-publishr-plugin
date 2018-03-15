@@ -28,53 +28,125 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Formatting element used for adding original formatting
- * and highlighting it in translation.
- */
-class FormattingElement {
-    private final String left;
-    private final String right;
-    private final Pattern pattern;
 
-    FormattingElement(String left, String right, String re) {
-        this.left = left;
-        this.right = right;
-        if (re == null) {
-            pattern = null;
-        } else {
-            pattern = Pattern.compile(re);
-        }
-    }
-
-    /**
-     * Apply formatting to text.
-     * @param text source text
-     * @return formatted text
-     */
-    String format(String text) {
-        return String.format("%s%s%s", left, text, right);
-    }
-
-    /**
-     * Return Matcher instance for given text searching
-     * for this formatting element.
-     * Can return null if no pattern was passed on creation.
-     * @param text text to search in
-     * @return Matcher instance
-     */
-    Matcher match(String text) {
-        if (pattern == null) {
-            return null;
-        }
-        return pattern.matcher(text);
-    }
+enum Element {
+    EMPHASIS,
+    STRONG,
+    NAME,
+    TITLE,
+    SUPERSCRIPT,
+    SUBSCRIPT,
+    IMAGE,
+    LINK,
+    FOOTNOTE,
+    SEPARATOR
 }
 
+
+enum BlockType {
+    TEXT,
+    SHORTCUT,
+    FORMATTING_ELEMENT
+}
+
+
 public final class Util {
+
+    public static final Formatter FORMATTER = new Formatter();
+
+    static {
+        FORMATTER.addConverter(
+                Element.STRONG,
+                "(?<!\\\\)(\\*{2})(?!\\s)(.+?)(?<![\\s\\\\])(\\*{2})",
+                "e2",
+                2,
+                0,
+                "**",
+                "**");
+
+        FORMATTER.addConverter(
+                Element.EMPHASIS,
+                "(?<!\\\\)(\\*{1})(?!\\s)(.+?)(?<![\\s\\\\])(\\*{1})",
+                "e1",
+                2,
+                0,
+                "*",
+                "*");
+
+        FORMATTER.addConverter(
+                Element.FOOTNOTE,
+                "(\\[\\^.+?\\])",
+                "f",
+                0,
+                0,
+                null,
+                null);
+
+        FORMATTER.addConverter(
+                Element.SEPARATOR,
+                "(?<!\\\\)(\\|)",
+                "s1",
+                0,
+                0,
+                null,
+                null);
+
+        FORMATTER.addConverter(
+                Element.SUPERSCRIPT,
+                "(\\^)(.+?)(\\^)",
+                "s2",
+                2,
+                0,
+                "^",
+                "^");
+
+        FORMATTER.addConverter(
+                Element.SUBSCRIPT,
+                "(~)(.+?)(~)",
+                "s3",
+                2,
+                0,
+                "~",
+                "~");
+
+        FORMATTER.addConverter(
+                Element.NAME,
+                "(name\\()(.+?)(\\))",
+                "n1",
+                2,
+                0,
+                "name(",
+                ")");
+
+        FORMATTER.addConverter(
+                Element.TITLE,
+                "(title\\()(.+?)(\\))",
+                "t1",
+                2,
+                0,
+                "title(",
+                ")");
+
+        FORMATTER.addConverter(
+                Element.IMAGE,
+                "(\\!\\[)(.*?)(\\]\\(.+?\\))",
+                "i",
+                2,
+                0,
+                null,
+                null);
+
+        FORMATTER.addConverter(
+                Element.LINK,
+                "(\\[)(.+?)(\\]\\()(.+?)(\\))",
+                "a",
+                2,
+                4,
+                null,
+                null);
+    }
 
     public static final String PLAIN_SHORTCUTS = "plainShortcuts";
 
@@ -82,28 +154,14 @@ public final class Util {
     static final Pattern EF_PATTERN = Pattern.compile(
             String.format("(<%s>)(.+?)(</%s>)", EF_TAG_NAME, EF_TAG_NAME));
 
-    /**
-     * Formatting elements data
-     * 1. ResourceBundle name for popup menu
-     * 2. Left formatting part
-     * 3. Right formatting part
-     * 4. RegExp for highlighting, can be null
-     */
-    private final static String[][] FORMAT_ELEMENTS = {
-        {"POPUP_MENU_FORMAT_EMPHASIS", "*", "*", null},
-        {"POPUP_MENU_FORMAT_STRONG", "**", "**", null},
-        {"POPUP_MENU_FORMAT_SUPERSCRIPT", "^", "^", null},
-        {"POPUP_MENU_FORMAT_SUBSCRIPT", "~", "~", null},
-        {"POPUP_MENU_FORMAT_NAME", "name(", ")", null},
-        {"POPUP_MENU_FORMAT_TITLE", "title(", ")", null}
-    };
-
-
-    final static Map<String, FormattingElement> FORMAT_ELEMENT_MAP = new LinkedHashMap<>();
+    final static Map<String, Element> FORMAT_ELEMENT_MAP = new LinkedHashMap<>();
     static {
-        for (String[] fe : FORMAT_ELEMENTS) {
-            FORMAT_ELEMENT_MAP.put(fe[0], new FormattingElement(fe[1], fe[2], fe[3]));
-        }
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_EMPHASIS", Element.EMPHASIS);
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_STRONG", Element.STRONG);
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_SUPERSCRIPT", Element.SUPERSCRIPT);
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_SUBSCRIPT", Element.SUBSCRIPT);
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_NAME", Element.NAME);
+        FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_TITLE", Element.TITLE);
     };
 
     /**
@@ -140,4 +198,5 @@ public final class Util {
      * Do not allow instances of this class.
      */
     private Util() { }
+
 }

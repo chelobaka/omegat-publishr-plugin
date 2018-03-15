@@ -21,30 +21,38 @@
 
 package com.pilulerouge.publishr.omegat;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ShortcutConverter {
+/**
+ * Swiss army knife for single formatting element.
+ */
+public class ElementProcessor {
 
-    private final Pattern pattern;
+    private final Pattern pattern, reversePattern;
     private final String shortcutName;
     private final boolean useCounter;
     private final int textGroup;
     private final int extraGroup;
+    // Original formatting parts
+    private final String left;
+    private final String right;
 
     private int counter;
 
     private Map<String, String> shortcutMap; // Label -> shortcut
     private Map<String, String> labelMap;  // Shortcut -> actual text
 
-    ShortcutConverter(final String regexp, final String shortcutName,
-                      final int textGroup, final int extraGroup) {
+    ElementProcessor(final String regexp, final String shortcutName,
+                     final int textGroup, final int extraGroup,
+                     final String left, final String right) {
         this.pattern = Pattern.compile(regexp);
         this.shortcutName = shortcutName;
         this.textGroup = textGroup;
         this.extraGroup = extraGroup;
+        this.left = left;
+        this.right = right;
 
         shortcutMap = new HashMap<>();
         labelMap = new HashMap<>();
@@ -52,6 +60,22 @@ public class ShortcutConverter {
 
         // Do not use counter if shortcut name contains a digit
         useCounter = !Pattern.compile("\\d").matcher(shortcutName).find();
+
+        // Build reverse pattern for matching shortcuts
+        String rpt;
+        if (textGroup > 0) {
+            rpt = "(<%s>)(.+?)(</\\1>)";
+        } else {
+            rpt = "(<%s/>)";
+        }
+
+        if (useCounter) {
+            rpt = String.format(rpt, shortcutName + "\\d+");
+        } else {
+            rpt = String.format(rpt, shortcutName);
+        }
+
+        reversePattern = Pattern.compile(rpt);
     }
 
     /**
@@ -61,7 +85,7 @@ public class ShortcutConverter {
      * @param extras    extra strings container
      * @return          processed text
      */
-    public String makeShortcuts(final String text, final Map<String, String> extras) {
+    public String toShortcuts(final String text, final Map<String, String> extras) {
 
         Matcher matcher = pattern.matcher(text);
 
@@ -151,14 +175,13 @@ public class ShortcutConverter {
         return result.toString();
     }
 
-
     /**
      * Remove shortcuts and restore original formatting.
      * @param text      piece of text where shortcuts should be removed
      * @param extras    mapping of source extra string to translated ones
      * @return          restored text
      */
-    public String removeShortcuts(final String text, final Map<String, String> extras) {
+    public String toOriginal (final String text, final Map<String, String> extras) {
         String result = text;
         // Replace shortcuts with actual formatting
         for (Map.Entry<String, String> scEntry : labelMap.entrySet()) {
@@ -187,6 +210,90 @@ public class ShortcutConverter {
         counter = 0;
         shortcutMap.clear();
         labelMap.clear();
+    }
+
+    /**
+     * Apply original formatting to text if converter has
+     * left and right parts defined.
+     * @param text text to format
+     * @return formatted text or original text
+     */
+    public String applyOriginalFormatting(String text) {
+        if (left != null && right != null) {
+            return left + text + right;
+        }
+        return text;
+    }
+
+    public List<FormatSpan> getFormatStructure(String text, boolean findOriginal,
+                                                    boolean findShortcuts) {
+
+        List<FormatSpan> result = new ArrayList<>();
+
+        if (findOriginal) {
+            Matcher matcher = pattern.matcher(text);
+            while (matcher.find()) {
+                if (textGroup > 0) {
+                    result.add(new FormatSpan(
+                            BlockType.FORMATTING_ELEMENT,
+                            null,
+                            matcher.start(1),
+                            matcher.end(textGroup - 1)));
+                    result.add(new FormatSpan(
+                            BlockType.TEXT,
+                            null,
+                            matcher.start(textGroup),
+                            matcher.end(textGroup)));
+                    result.add(new FormatSpan(
+                            BlockType.FORMATTING_ELEMENT,
+                            null,
+                            matcher.start(textGroup + 1),
+                            matcher.end(matcher.groupCount())));
+                } else {
+                    result.add(new FormatSpan(
+                            BlockType.FORMATTING_ELEMENT,
+                            null,
+                            matcher.start(1),
+                            matcher.end(matcher.groupCount())));
+                }
+            }
+        }
+
+        if (findShortcuts) {
+            Matcher matcher = reversePattern.matcher(text);
+            while (matcher.find()) {
+                // 3 groups
+                if (textGroup > 0) {
+                    result.add(new FormatSpan(
+                            BlockType.SHORTCUT,
+                            null,
+                            matcher.start(1),
+                            matcher.end(1)));
+                    result.add(new FormatSpan(
+                            BlockType.TEXT,
+                            null,
+                            matcher.start(2),
+                            matcher.end(2)));
+                    result.add(new FormatSpan(
+                            BlockType.SHORTCUT,
+                            null,
+                            matcher.start(3),
+                            matcher.end(3)));
+                } else { // 1 group
+                    result.add(new FormatSpan(
+                            BlockType.SHORTCUT,
+                            null,
+                            matcher.start(1),
+                            matcher.end(1)));
+                }
+            }
+        }
+
+        if (findOriginal && findShortcuts) {
+            Collections.sort(result);
+        }
+
+        return result;
     }
 
     /**

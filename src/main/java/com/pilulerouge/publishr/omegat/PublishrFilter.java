@@ -109,9 +109,6 @@ public class PublishrFilter extends AbstractFilter {
 
     private static final String EXTRA_FOOTNOTE_MARKER = "[^omegat-%d]";
 
-    // Shortcut converters (v.1.0).
-    private ShortcutConverter[] shortcutConverters;
-
     // Register marker
     static {
         Core.registerMarker(new Highlighter());
@@ -136,38 +133,6 @@ public class PublishrFilter extends AbstractFilter {
             }
             tokens2tags.put(tokens, TAG_TABLE[i][1]);
         }
-
-        // Initialize shortcut converters. Order is important!
-        shortcutConverters = new ShortcutConverter[]{
-            // Triple asterisk pair
-            new ShortcutConverter("(\\*{3})(.*?)(\\*{3})", "e3", 2, 0),
-            // Double asterisk pair
-            new ShortcutConverter("(\\*{2})(.*?)(\\*{2})", "e2", 2, 0),
-            // Single asterisk pair
-            new ShortcutConverter("(\\*)(.*?)(\\*)", "e1", 2, 0),
-            // Triple asterisk
-            new ShortcutConverter("(\\*{3})", "e3", 0, 0),
-            // Double asterisk
-            new ShortcutConverter("(\\*{2})", "e2", 0, 0),
-            // Single asterisk
-            new ShortcutConverter("(\\*)", "e1", 0, 0),
-            // Footnote reference
-            new ShortcutConverter("(\\[\\^.+?\\])", "f", 0, 0),
-            // Subscript
-            new ShortcutConverter("(~)(.+?)(~)", "s3", 2, 0),
-            // Superscript
-            new ShortcutConverter("(\\^)(.+?)(\\^)", "s2", 2, 0),
-            // Table column separator
-            new ShortcutConverter("(\\|)", "s1", 0, 0),
-            // Name wrapper
-            new ShortcutConverter("(name\\()(.+?)(\\))", "n1", 2, 0),
-            // Title wrapper
-            new ShortcutConverter("(title\\()(.+?)(\\))", "t1", 2, 0),
-            // Image
-            new ShortcutConverter("(\\!\\[)(.*?)(\\]\\(.+?\\))", "i", 2, 0),
-            // Link
-            new ShortcutConverter("(\\[)(.+?)(\\]\\()(.+?)(\\))", "a", 2, 4)
-        };
     }
 
     private static IApplicationEventListener generateIApplicationEventListener() {
@@ -320,9 +285,7 @@ public class PublishrFilter extends AbstractFilter {
         boolean usePlainShortcuts = Boolean.valueOf(processOptions.get(Util.PLAIN_SHORTCUTS));
 
         // Reset shortcut converters
-        for (ShortcutConverter sc : shortcutConverters) {
-            sc.reset();
-        }
+        Util.FORMATTER.resetConverters();
 
         String line;
         Matcher matcher;
@@ -386,9 +349,7 @@ public class PublishrFilter extends AbstractFilter {
                     line = replaceWithTags(line, p);
                 }
             } else {
-                for (ShortcutConverter sc : shortcutConverters) {
-                    line = sc.makeShortcuts(line, sourceExtras);
-                }
+                line = Util.FORMATTER.toShortcuts(line, sourceExtras);
             }
 
             /* Put escaped asterisks back */
@@ -426,9 +387,7 @@ public class PublishrFilter extends AbstractFilter {
             if (usePlainShortcuts) {
                 line = replaceWithTokens(line);
             } else {
-                for (ShortcutConverter sc : shortcutConverters) {
-                    line = sc.removeShortcuts(line, translatedExtras);
-                }
+                line = Util.FORMATTER.toOriginal(line, translatedExtras);
             }
 
             /* Check for extra footnotes */
@@ -443,6 +402,5 @@ public class PublishrFilter extends AbstractFilter {
             outfile.write("\n\n");
             outfile.write(fn);
         }
-
     }
 }
