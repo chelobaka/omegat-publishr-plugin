@@ -57,7 +57,7 @@ public final class Util {
     public static final Formatter FORMATTER = new Formatter();
 
     static {
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.STRONG,
                 "(?<!\\\\)(\\*{2})(?!\\s)(.+?)(?<![\\s\\\\])(\\*{2})",
                 "e2",
@@ -66,7 +66,7 @@ public final class Util {
                 "**",
                 "**");
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.EMPHASIS,
                 "(?<!\\\\)(\\*{1})(?!\\s)(.+?)(?<![\\s\\\\])(\\*{1})",
                 "e1",
@@ -75,7 +75,7 @@ public final class Util {
                 "*",
                 "*");
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.FOOTNOTE,
                 "(\\[\\^.+?\\])",
                 "f",
@@ -84,7 +84,7 @@ public final class Util {
                 null,
                 null);
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.SEPARATOR,
                 "(?<!\\\\)(\\|)",
                 "s1",
@@ -93,7 +93,7 @@ public final class Util {
                 null,
                 null);
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.SUPERSCRIPT,
                 "(\\^)(.+?)(\\^)",
                 "s2",
@@ -102,7 +102,7 @@ public final class Util {
                 "^",
                 "^");
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.SUBSCRIPT,
                 "(~)(.+?)(~)",
                 "s3",
@@ -111,7 +111,7 @@ public final class Util {
                 "~",
                 "~");
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.NAME,
                 "(name\\()(.+?)(\\))",
                 "n1",
@@ -120,7 +120,7 @@ public final class Util {
                 "name(",
                 ")");
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.TITLE,
                 "(title\\()(.+?)(\\))",
                 "t1",
@@ -129,7 +129,7 @@ public final class Util {
                 "title(",
                 ")");
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.IMAGE,
                 "(\\!\\[)(.*?)(\\]\\(.+?\\))",
                 "i",
@@ -138,7 +138,7 @@ public final class Util {
                 null,
                 null);
 
-        FORMATTER.addConverter(
+        FORMATTER.addProcessor(
                 Element.LINK,
                 "(\\[)(.+?)(\\]\\()(.+?)(\\))",
                 "a",

@@ -36,9 +36,9 @@ public class Formatter {
         processorMap = new LinkedHashMap<>();
     }
 
-    public void addConverter(final Element element, final String re, final String shortcutName,
-                      final int textGroup, final int extraGroup,
-                      final String left, final String right) {
+    public void addProcessor(final Element element, final String re, final String shortcutName,
+                             final int textGroup, final int extraGroup,
+                             final String left, final String right) {
 
         ElementProcessor processor = new ElementProcessor(re, shortcutName, textGroup, extraGroup, left, right);
         processorMap.put(element, processor);
@@ -83,11 +83,11 @@ public class Formatter {
      */
     String applyElement(String text, Element element) {
 
-        ElementProcessor converter = processorMap.get(element);
-        if (converter == null) {
+        ElementProcessor processor = processorMap.get(element);
+        if (processor == null) {
             return text;
         }
-        return converter.applyOriginalFormatting(text);
+        return processor.applyOriginalFormatting(text);
     }
 
     /**
