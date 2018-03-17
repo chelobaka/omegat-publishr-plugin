@@ -48,7 +48,7 @@ enum Element {
 enum BlockType {
     TEXT,
     SHORTCUT,
-    FORMATTING_ELEMENT
+    ELEMENT
 }
 
 

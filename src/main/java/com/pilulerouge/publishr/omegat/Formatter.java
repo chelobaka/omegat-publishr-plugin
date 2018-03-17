@@ -125,7 +125,7 @@ public class Formatter {
                 int lastPosition = 0;
                 for (FormatSpan span : hits) {
                     sb.append(text.substring(lastPosition, span.begin));
-                    if (span.signature.type == BlockType.FORMATTING_ELEMENT) {
+                    if (span.signature.type == BlockType.ELEMENT) {
                         sb.append(CORK); // Simplified because we know element length
                     } else {
                         sb.append(text.substring(span.begin, span.end));

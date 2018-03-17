@@ -235,7 +235,7 @@ public class ElementProcessor {
             while (matcher.find()) {
                 if (textGroup > 0) {
                     result.add(new FormatSpan(
-                            BlockType.FORMATTING_ELEMENT,
+                            BlockType.ELEMENT,
                             null,
                             matcher.start(1),
                             matcher.end(textGroup - 1)));
@@ -245,13 +245,13 @@ public class ElementProcessor {
                             matcher.start(textGroup),
                             matcher.end(textGroup)));
                     result.add(new FormatSpan(
-                            BlockType.FORMATTING_ELEMENT,
+                            BlockType.ELEMENT,
                             null,
                             matcher.start(textGroup + 1),
                             matcher.end(matcher.groupCount())));
                 } else {
                     result.add(new FormatSpan(
-                            BlockType.FORMATTING_ELEMENT,
+                            BlockType.ELEMENT,
                             null,
                             matcher.start(1),
                             matcher.end(matcher.groupCount())));
