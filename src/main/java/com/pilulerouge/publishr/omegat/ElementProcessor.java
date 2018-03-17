@@ -64,7 +64,7 @@ public class ElementProcessor {
         // Build reverse pattern for matching shortcuts
         String rpt;
         if (textGroup > 0) {
-            rpt = "(<%s>)(.+?)(</\\1>)";
+            rpt = "(<(%s)>)(.+?)(</\\2>)";
         } else {
             rpt = "(<%s/>)";
         }
@@ -272,13 +272,13 @@ public class ElementProcessor {
                     result.add(new FormatSpan(
                             BlockType.TEXT,
                             null,
-                            matcher.start(2),
-                            matcher.end(2)));
+                            matcher.start(3),
+                            matcher.end(3)));
                     result.add(new FormatSpan(
                             BlockType.SHORTCUT,
                             null,
-                            matcher.start(3),
-                            matcher.end(3)));
+                            matcher.start(4),
+                            matcher.end(4)));
                 } else { // 1 group
                     result.add(new FormatSpan(
                             BlockType.SHORTCUT,
