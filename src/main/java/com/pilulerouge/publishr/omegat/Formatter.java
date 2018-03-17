@@ -123,7 +123,6 @@ public class Formatter {
             if (element == Element.STRONG) {
                 StringBuilder sb = new StringBuilder();
                 int lastPosition = 0;
-                sb.append(text.substring(0, hits.get(0).begin));
                 for (FormatSpan span : hits) {
                     sb.append(text.substring(lastPosition, span.begin));
                     if (span.signature.type == BlockType.FORMATTING_ELEMENT) {
