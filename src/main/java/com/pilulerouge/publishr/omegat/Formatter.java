@@ -32,11 +32,101 @@ public class Formatter {
 
     private final Map<Element, ElementProcessor> processorMap;
 
-    Formatter() {
+    public Formatter() {
         processorMap = new LinkedHashMap<>();
+
+        addProcessor(
+                Element.STRONG,
+                "(?<!\\\\)(\\*{2})(?!\\s)(.+?)(?<![\\s\\\\])(\\*{2})",
+                "e2",
+                2,
+                0,
+                "**",
+                "**");
+
+        addProcessor(
+                Element.EMPHASIS,
+                "(?<!\\\\)(\\*{1})(?!\\s)(.+?)(?<![\\s\\\\])(\\*{1})",
+                "e1",
+                2,
+                0,
+                "*",
+                "*");
+
+        addProcessor(
+                Element.FOOTNOTE,
+                "(\\[\\^.+?\\])",
+                "f",
+                0,
+                0,
+                null,
+                null);
+
+        addProcessor(
+                Element.SEPARATOR,
+                "(?<!\\\\)(\\|)",
+                "s1",
+                0,
+                0,
+                null,
+                null);
+
+        addProcessor(
+                Element.SUPERSCRIPT,
+                "(\\^)(.+?)(\\^)",
+                "s2",
+                2,
+                0,
+                "^",
+                "^");
+
+        addProcessor(
+                Element.SUBSCRIPT,
+                "(~)(.+?)(~)",
+                "s3",
+                2,
+                0,
+                "~",
+                "~");
+
+        addProcessor(
+                Element.NAME,
+                "(name\\()(.+?)(\\))",
+                "n1",
+                2,
+                0,
+                "name(",
+                ")");
+
+        addProcessor(
+                Element.TITLE,
+                "(title\\()(.+?)(\\))",
+                "t1",
+                2,
+                0,
+                "title(",
+                ")");
+
+        addProcessor(
+                Element.IMAGE,
+                "(\\!\\[)(.*?)(\\]\\(.+?\\))",
+                "i",
+                2,
+                0,
+                null,
+                null);
+
+        addProcessor(
+                Element.LINK,
+                "(\\[)(.+?)(\\]\\()(.+?)(\\))",
+                "a",
+                2,
+                4,
+                null,
+                null);
     }
 
-    public void addProcessor(final Element element, final String re, final String shortcutName,
+    private void addProcessor(final Element element, final String re, final String shortcutName,
                              final int textGroup, final int extraGroup,
                              final String left, final String right) {
 
@@ -48,15 +138,16 @@ public class Formatter {
      * Reset all converters.
      */
     public void resetConverters() {
-        processorMap.values().stream().forEach(ElementProcessor::reset);
+        processorMap.values().forEach(ElementProcessor::reset);
     }
 
     /**
      * Substitute original formatting with shortcuts.
-     * @param text
-     * @return
+     * @param text text with original formatting
+     * @param extras element specific extra strings
+     * @return text with shortcuts
      */
-    String toShortcuts(String text, Map<String, String> extras) {
+    public String toShortcuts(String text, Map<String, String> extras) {
         for (ElementProcessor converter : processorMap.values()) {
             text = converter.toShortcuts(text, extras);
         }
@@ -65,10 +156,11 @@ public class Formatter {
 
     /**
      * Substitute shortcuts with original formatting.
-     * @param text
-     * @return
+     * @param text text containing shortcuts
+     * @param extras element specific extra strings (like URL)
+     * @return text with original formatting
      */
-    String toOriginal(String text, Map<String, String> extras) {
+    public String toOriginal(String text, Map<String, String> extras) {
         for (ElementProcessor converter : processorMap.values()) {
             text = converter.toOriginal(text, extras);
         }
@@ -77,11 +169,11 @@ public class Formatter {
 
     /**
      * Wrap text with formatting element.
-     * @param text
-     * @param element
-     * @return
+     * @param text unformatted text
+     * @param element element to wrap with
+     * @return formatted text
      */
-    String applyElement(String text, Element element) {
+    public String applyElement(String text, Element element) {
 
         ElementProcessor processor = processorMap.get(element);
         if (processor == null) {
@@ -91,10 +183,12 @@ public class Formatter {
     }
 
     /**
-     * Parse text signature. Used by highlighter.
-     * @param text
+     * Parse text structure. Can be used for highlighting.
+     * @param text input text
+     * @param findOriginal look for original elements?
+     * @param findShortcuts look for shortcuts?
      */
-    List<FormatSpan> parseStructure(String text, boolean findOriginal, boolean findShortcuts) {
+    public List<FormatSpan> parseStructure(String text, boolean findOriginal, boolean findShortcuts) {
 
         if (!findOriginal && !findShortcuts) {
             return null;
