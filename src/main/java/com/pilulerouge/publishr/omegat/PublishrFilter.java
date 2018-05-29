@@ -188,7 +188,7 @@ public class PublishrFilter extends AbstractFilter {
 
     @Override
     protected boolean requirePrevNextFields() {
-        return false;
+        return true;
     }
 
     @Override
