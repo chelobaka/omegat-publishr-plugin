@@ -219,8 +219,8 @@ public class PublishrFilter extends AbstractFilter {
     /**
      * Find extra footnotes declarations, replace them with PublishR formatting
      * and add footnotes to external list.
-     * @param text
-     * @param extraFootnotes
+     * @param text input text
+     * @param extraFootnotes list of footnotes in PublishR format
      * @return processed text
      */
     private String makeExtraFootnotes(final String text, final List<String> extraFootnotes) {
