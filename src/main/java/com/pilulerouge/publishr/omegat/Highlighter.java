@@ -36,7 +36,7 @@ import java.util.regex.Matcher;
 
 
 /**
- * Marker for custom footnotes.
+ * Formatting marker.
  */
 class Highlighter implements IMarker {
 
@@ -53,6 +53,14 @@ class Highlighter implements IMarker {
         HIGHLIGHT_ATTRS.put(3, TAG_ATTRIBUTES);
     }
 
+    // Build reverse element/text map for tooltips
+    private static final Map<Element, String> TOOLTIP_ELEMENT_MAP = new HashMap<>();
+    static {
+        Util.FORMAT_ELEMENT_MAP.entrySet().forEach(
+                e -> TOOLTIP_ELEMENT_MAP.put(e.getValue(), e.getKey())
+        );
+    }
+
     public List<Mark> getMarksForEntry(final SourceTextEntry ste, final String sourceText,
                                        final String translationText, final boolean isActive) {
 
@@ -60,22 +68,33 @@ class Highlighter implements IMarker {
             return null;
         }
 
-        Matcher matcher = Util.EF_PATTERN.matcher(translationText);
-        if (!matcher.find()) {
-            return null;
-        }
-
         List<Mark> result = new ArrayList<>();
 
-        do {
-            for (int g = 1; g <= matcher.groupCount(); g++) {
-                Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, matcher.start(g), matcher.end(g));
+        // Extra footnotes
+        Matcher matcher = Util.EF_PATTERN.matcher(translationText);
+        if (matcher.find()) {
+            do {
+                for (int g = 1; g <= matcher.groupCount(); g++) {
+                    Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, matcher.start(g), matcher.end(g));
+                    mark.painter = null;
+                    mark.attributes = HIGHLIGHT_ATTRS.get(g);
+                    mark.toolTipText = Util.RB.getString("FOOTNOTE_HINT");
+                    result.add(mark);
+                }
+            } while (matcher.find());
+        }
+
+        // Original formatting
+        List<FormatSpan> spans = Util.FORMATTER.parseStructure(translationText, true, false);
+        for (FormatSpan span : spans) {
+            if (span.signature.type == BlockType.ELEMENT) {
+                Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, span.begin, span.end);
                 mark.painter = null;
-                mark.attributes = HIGHLIGHT_ATTRS.get(g);
-                mark.toolTipText = Util.RB.getString("FOOTNOTE_HINT");
+                mark.attributes = TAG_ATTRIBUTES;
+                mark.toolTipText = Util.RB.getString(TOOLTIP_ELEMENT_MAP.get(span.signature.element));
                 result.add(mark);
             }
-        } while (matcher.find());
+        }
 
         return result;
     }
