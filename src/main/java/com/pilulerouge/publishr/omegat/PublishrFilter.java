@@ -72,8 +72,10 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("^(\\{L\\d+?}\\s+)(.+)")        // Line number
     };
 
-    // In-text control symbols patterns (1 or more groups).
-    // Order may be important.
+    /*
+     In-text control symbols patterns (1 or more groups). Order may be important.
+     This structure is used in plain parsing mode.
+     */
     private static final Pattern[] TAG_PATTERNS = {
         // Emphasis pairs
         Pattern.compile("(?<!\\*)(\\*{3})(?!\\*)(?:.*?)(?<!\\*)(\\*{3})(?!\\*)"),
@@ -89,7 +91,10 @@ public class PublishrFilter extends AbstractFilter {
         Pattern.compile("(!?\\[).*?(]\\().+?(\\))") // Image/link
     };
 
-    // Token count in each row should be equal to tag count
+    /*
+     Token count in each row should be equal to tag count.
+     This structure is used in plain parsing mode.
+     */
     private static final String[][][] TAG_TABLE = {
         {{"*"}, {"<e1/>"}},  // single light emphasis
         {{"**"}, {"<e2/>"}}, // single strong emphasis
@@ -118,6 +123,7 @@ public class PublishrFilter extends AbstractFilter {
      * Constructor.
      */
     public PublishrFilter() {
+        // Init objects for plain parsing mode
         tag2token = new HashMap<>();
         tokens2tags = new HashMap<>();
         // Populate tag/token maps
@@ -196,7 +202,13 @@ public class PublishrFilter extends AbstractFilter {
         return true;
     }
 
-    private String replaceWithTokens(final String input) {
+    /**
+     * Replace shortcuts with original formatting.
+     * Used in plain parsing mode.
+     * @param input text with shortcuts
+     * @return text with original formatting
+     */
+    private String replaceWithFormatting(final String input) {
         String result = input;
         for (Entry<String, String> tagEntry : tag2token.entrySet()) {
             result = result.replace(tagEntry.getKey(), tagEntry.getValue());
@@ -223,7 +235,14 @@ public class PublishrFilter extends AbstractFilter {
         return result;
     }
 
-    private String replaceWithTags(final String input, final Pattern pattern) {
+    /**
+     * Replace formatting with shortcuts.
+     * Used in plain parsing mode.
+     * @param input text with original formatting
+     * @param pattern formatting search pattern
+     * @return text with shortcuts for a given pattern
+     */
+    private String replaceWithShortcuts(final String input, final Pattern pattern) {
         Matcher m = pattern.matcher(input);
         int lastPosition = 0;
         StringBuilder builder = new StringBuilder();
@@ -243,6 +262,12 @@ public class PublishrFilter extends AbstractFilter {
         }
     }
 
+    /**
+     * Search for shortcut strings in static map.
+     * Used in plain parsing mode.
+     * @param matcher Matcher instance
+     * @return array of shortcuts
+     */
     private String[] getMatchedTags(final Matcher matcher) {
         StringBuilder tokenChain = new StringBuilder();
         tokenChain.append(matcher.group(1));
@@ -346,7 +371,7 @@ public class PublishrFilter extends AbstractFilter {
             /* Replace formatting with OmegaT shortcuts */
             if (usePlainShortcuts) {
                 for (Pattern p : TAG_PATTERNS) {
-                    line = replaceWithTags(line, p);
+                    line = replaceWithShortcuts(line, p);
                 }
             } else {
                 line = Util.FORMATTER.toShortcuts(line, sourceExtras);
@@ -385,7 +410,7 @@ public class PublishrFilter extends AbstractFilter {
 
             /* Replace OmegaT shortcuts with original formatting */
             if (usePlainShortcuts) {
-                line = replaceWithTokens(line);
+                line = replaceWithFormatting(line);
             } else {
                 line = Util.FORMATTER.toOriginal(line, translatedExtras);
             }
