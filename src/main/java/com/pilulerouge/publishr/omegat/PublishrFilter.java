@@ -44,69 +44,68 @@ import org.omegat.util.LinebreakPreservingReader;
 import org.omegat.util.Log;
 
 
-enum FormattingType {
-    BLOCK_QUOTE,
-    HEADING,
-    LIST_ITEM,
-    FOOTNOTE,
-    LINE_NUMBER,
-    TRANSCRIPT,
-    LYRICS,
-    EMAIL
-}
-
-class FormattingInfo {
-
-    private Pattern pattern;
-    private String rbName;
-    private boolean hasParam;
-    private boolean countChars;
-
-    /**
-     * Constructor.
-     * @param re regexp string
-     * @param rbName format name string for resource bundle
-     * @param hasParam is there a parameter?
-     * @param countChars count characters in param group instead of taking literal value
-     */
-    FormattingInfo(String re, String rbName, boolean hasParam, boolean countChars) {
-        this.pattern = Pattern.compile(re);
-        this.rbName = rbName;
-        this.hasParam = hasParam;
-        this.countChars = countChars;
-    }
-
-    /**
-     * Get format info from string.
-     * @param s input string
-     * @return description of format or null
-     */
-    String getInfo(String s) {
-        Matcher matcher = pattern.matcher(s);
-        if (matcher.find()) {
-            String result = Util.RB.getString(rbName);
-            if (hasParam) {
-                String param = matcher.group(1);
-                if (countChars) {
-                    param = String.valueOf(param.length());
-                }
-                result += ": " + param;
-            }
-            return result;
-        }
-        else {
-            return null;
-        }
-    }
-}
-
-
 /**
  * PublishR syntax filter.
  *
  * @author Lev Abashkin
  */
 public class PublishrFilter extends AbstractFilter {
+
+    private enum FormattingType {
+        BLOCK_QUOTE,
+        HEADING,
+        LIST_ITEM,
+        FOOTNOTE,
+        LINE_NUMBER,
+        TRANSCRIPT,
+        LYRICS,
+        EMAIL
+    }
+
+    private static class FormattingInfo {
+
+        private Pattern pattern;
+        private String rbName;
+        private boolean hasParam;
+        private boolean countChars;
+
+        /**
+         * Constructor.
+         * @param re regexp string
+         * @param rbName format name string for resource bundle
+         * @param hasParam is there a parameter?
+         * @param countChars count characters in param group instead of taking literal value
+         */
+        FormattingInfo(String re, String rbName, boolean hasParam, boolean countChars) {
+            this.pattern = Pattern.compile(re);
+            this.rbName = rbName;
+            this.hasParam = hasParam;
+            this.countChars = countChars;
+        }
+
+        /**
+         * Get format info from string.
+         * @param s input string
+         * @return description of format or null
+         */
+        String getInfo(String s) {
+            Matcher matcher = pattern.matcher(s);
+            if (matcher.find()) {
+                String result = Util.RB.getString(rbName);
+                if (hasParam) {
+                    String param = matcher.group(1);
+                    if (countChars) {
+                        param = String.valueOf(param.length());
+                    }
+                    result += ": " + param;
+                }
+                return result;
+            }
+            else {
+                return null;
+            }
+        }
+    }
 
     private final Map<String, String> tag2token;
     private final Map<String, String[]> tokens2tags;
