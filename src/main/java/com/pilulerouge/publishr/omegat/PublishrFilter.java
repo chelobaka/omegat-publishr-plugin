@@ -25,13 +25,14 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.omegat.core.Core;
 
 import org.omegat.core.CoreEvents;
@@ -41,6 +42,63 @@ import org.omegat.filters2.FilterContext;
 import org.omegat.filters2.Instance;
 import org.omegat.util.LinebreakPreservingReader;
 import org.omegat.util.Log;
+
+
+enum FormattingType {
+    BLOCK_QUOTE,
+    HEADING,
+    LIST_ITEM,
+    FOOTNOTE,
+    LINE_NUMBER,
+    TRANSCRIPT,
+    LYRICS,
+    EMAIL
+}
+
+class FormattingInfo {
+
+    private Pattern pattern;
+    private String rbName;
+    private boolean hasParam;
+    private boolean countChars;
+
+    /**
+     * Constructor.
+     * @param re regexp string
+     * @param rbName format name string for resource bundle
+     * @param hasParam is there a parameter?
+     * @param countChars count characters in param group instead of taking literal value
+     */
+    FormattingInfo(String re, String rbName, boolean hasParam, boolean countChars) {
+        this.pattern = Pattern.compile(re);
+        this.rbName = rbName;
+        this.hasParam = hasParam;
+        this.countChars = countChars;
+    }
+
+    /**
+     * Get format info from string.
+     * @param s input string
+     * @return description of format or null
+     */
+    String getInfo(String s) {
+        Matcher matcher = pattern.matcher(s);
+        if (matcher.find()) {
+            String result = Util.RB.getString(rbName);
+            if (hasParam) {
+                String param = matcher.group(1);
+                if (countChars) {
+                    param = String.valueOf(param.length());
+                }
+                result += ": " + param;
+            }
+            return result;
+        }
+        else {
+            return null;
+        }
+    }
+}
 
 
 /**
@@ -55,22 +113,114 @@ public class PublishrFilter extends AbstractFilter {
 
     private static final String ESCAPED_ASTERISK_TAG = "<$@EA@$>";
 
-    // Non-translatable line patterns (no groups)
-    private static final Pattern[] SKIP_PATTERNS = {
-        Pattern.compile("^[|\\-+:= ]+$"),     // Table separator line
-        Pattern.compile("^\\s*\\{:.+}\\s*$"), // Comment/command line
-        Pattern.compile("^\\^\\s*$"),         // EOB marker
-    };
+    private static final Map<Pattern, Set<FormattingType>> SKIP_PATTERN_MAP;
+    static {
+        SKIP_PATTERN_MAP = new HashMap<>();
 
-    // Block level patterns (2 groups)
-    private static final Pattern[] BLOCK_PATTERNS = {
-        Pattern.compile("^(\\s+)(.+)"),                 // Indentation
-        Pattern.compile("^(#+\\**\\s)(.+)"),            // Heading
-        Pattern.compile("^((?:\\*|\\d+.)\\s)(.+)"),     // List
-        Pattern.compile("^((?:>+\\s*)+)(.*)"),          // Block-quote
-        Pattern.compile("^(\\[\\^.+?]:\\s+)(.+)"),      // Footnote
-        Pattern.compile("^(\\{L\\d+?}\\s+)(.+)")        // Line number
-    };
+        // Table separator line
+        SKIP_PATTERN_MAP.put(
+                Pattern.compile("^[|\\-+:= ]+$"),
+                Collections.emptySet()
+        );
+
+        // EOB marker
+        SKIP_PATTERN_MAP.put(
+                Pattern.compile("^\\^\\s*$"),
+                Collections.emptySet()
+        );
+
+        // Comment/command line
+        SKIP_PATTERN_MAP.put(
+                Pattern.compile("^\\s*\\{:.+}\\s*$"),
+                Stream.of(FormattingType.TRANSCRIPT,
+                          FormattingType.LYRICS,
+                          FormattingType.EMAIL)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+    }
+
+    private static final Map<Pattern, Set<FormattingType>> BLOCK_PATTERN_MAP;
+    static {
+        BLOCK_PATTERN_MAP = new HashMap<>();
+
+        // Indentation
+        BLOCK_PATTERN_MAP.put(
+                Pattern.compile("^(\\s+)(.+)"),
+                Collections.emptySet()
+        );
+
+        // Heading
+        BLOCK_PATTERN_MAP.put(
+                Pattern.compile("^(#+\\**\\s)(.+)"),
+                Stream.of(FormattingType.HEADING)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+
+        // List
+        BLOCK_PATTERN_MAP.put(
+                Pattern.compile("^((?:\\*|\\d+.)\\s)(.+)"),
+                Stream.of(FormattingType.LIST_ITEM)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+
+        // Block-quote
+        BLOCK_PATTERN_MAP.put(
+                Pattern.compile("^((?:>+\\s*)+)(.*)"),
+                Stream.of(FormattingType.BLOCK_QUOTE)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+
+        // Footnote
+        BLOCK_PATTERN_MAP.put(
+                Pattern.compile("^(\\[\\^.+?]:\\s+)(.+)"),
+                Stream.of(FormattingType.FOOTNOTE)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+
+        // Line number
+        BLOCK_PATTERN_MAP.put(
+                Pattern.compile("^(\\{L\\d+?}\\s+)(.+)"),
+                Stream.of(FormattingType.LINE_NUMBER)
+                        .collect(Collectors.toCollection(HashSet::new))
+        );
+    }
+
+    private static final Map<FormattingType, FormattingInfo> FORMATTING_TYPE_MAP;
+    static {
+        FORMATTING_TYPE_MAP = new HashMap<>();
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.BLOCK_QUOTE,
+                new FormattingInfo("(>+)", "FMT_BLOCK_QUOTE", true, true)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.FOOTNOTE,
+                new FormattingInfo("\\[\\^(.+)?]:", "FMT_FOOTNOTE", true, false)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.HEADING,
+                new FormattingInfo("(#+)", "FMT_HEADING", true, true)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.LIST_ITEM,
+                new FormattingInfo(".", "FMT_LIST_ITEM", false, false)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.LINE_NUMBER,
+                new FormattingInfo("\\{L(\\d+)?}", "FMT_LINE_NUMBER", true, false)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.TRANSCRIPT,
+                new FormattingInfo("\\.transcript", "FMT_TRANSCRIPT", false, false)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.LYRICS,
+                new FormattingInfo("\\.lyrics", "FMT_LYRICS", false, false)
+        );
+        FORMATTING_TYPE_MAP.put(
+                FormattingType.EMAIL,
+                new FormattingInfo("\\.email", "FMT_EMAIL", false, false)
+        );
+    }
 
     /*
      In-text control symbols patterns (1 or more groups). Order may be important.
@@ -318,6 +468,11 @@ public class PublishrFilter extends AbstractFilter {
         Map<String, String> sourceExtras = new HashMap<>();
         Map<String, String> translatedExtras = new HashMap<>();
 
+        // Collected formatting comments
+        Map<FormattingType, String> formattingComments = new TreeMap<>();
+        // Create a list of block patterns so it can be reiterated
+        List<Pattern> blockPatterns = new ArrayList<>(BLOCK_PATTERN_MAP.keySet());
+
         while ((line = lbpr.readLine()) != null) {
 
             // Clear extra strings maps
@@ -326,17 +481,28 @@ public class PublishrFilter extends AbstractFilter {
 
             String br = lbpr.getLinebreak();
 
-            /* Skip non-translatable lines */
+            /* Skip empty lines */
             if (line.trim().isEmpty()) {
                 outfile.write(line + br);
+                formattingComments.clear(); // Clear formatting comments
                 continue;
             }
 
+            /* Skip lines matched by skip patterns, collect format metadata */
             boolean skipLine = false;
-            for (Pattern p : SKIP_PATTERNS) {
-                matcher = p.matcher(line);
+            for (Map.Entry<Pattern, Set<FormattingType>> e : SKIP_PATTERN_MAP.entrySet()) {
+                matcher = e.getKey().matcher(line);
                 if (matcher.matches()) {
                     outfile.write(line + br);
+                    // Check for format signature
+                    for (FormattingType fType: e.getValue()) {
+                        FormattingInfo fInfo = FORMATTING_TYPE_MAP.get(fType);
+                        String fComment = fInfo.getInfo(line);
+                        if (fComment != null) {
+                            formattingComments.put(fType, fComment);
+                            break;
+                        }
+                    }
                     skipLine = true;
                     break;
                 }
@@ -345,14 +511,24 @@ public class PublishrFilter extends AbstractFilter {
                 continue;
             }
 
-            /* Trim block-level tokens */
+            /* Trim block-level tokens, collect format metadata */
             int i = 0;
-            while (i < BLOCK_PATTERNS.length) {
-                matcher = BLOCK_PATTERNS[i].matcher(line);
+            while (i < blockPatterns.size()) {
+                Pattern pattern = blockPatterns.get(i);
+                matcher = pattern.matcher(line);
                 i++;
                 if (matcher.matches()) {
                     outfile.write(matcher.group(1));
                     line = matcher.group(2);
+                    // Check for format signature
+                    for (FormattingType fType: BLOCK_PATTERN_MAP.get(pattern)) {
+                        FormattingInfo fInfo = FORMATTING_TYPE_MAP.get(fType);
+                        String fComment = fInfo.getInfo(matcher.group(1));
+                        if (fComment != null) {
+                            formattingComments.put(fType, fComment);
+                            break;
+                        }
+                    }
                     i = 0;
                 }
             }
@@ -383,9 +559,16 @@ public class PublishrFilter extends AbstractFilter {
             }
 
             /* Create a comment for translation */
+            StringBuilder cb = new StringBuilder();
             String comment = null;
+
+            if (!formattingComments.isEmpty()) {
+                String fComment = formattingComments.values().stream().collect(Collectors.joining(" / "));
+                cb.append(fComment);
+                cb.append("\n");
+            }
+
             if (!sourceExtras.isEmpty()) {
-                StringBuilder cb = new StringBuilder();
                 for (Map.Entry<String, String> e : sourceExtras.entrySet()) {
                     cb.append("<");
                     cb.append(e.getKey());
@@ -393,6 +576,9 @@ public class PublishrFilter extends AbstractFilter {
                     cb.append(e.getValue());
                     cb.append("\n");
                 }
+            }
+
+            if (cb.length() > 0) {
                 comment = cb.toString();
             }
 
