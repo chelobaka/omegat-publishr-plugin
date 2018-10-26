@@ -67,7 +67,7 @@ public class PublishrFilterTest extends TestFilterBase {
         assertEquals("Here is an image <id1>Image description</id1><il1>image1.jpg</il1>.", entries.get(i++));
         assertEquals("And here is a link <ld1>Link description</ld1><la1>http://first.url</la1>.", entries.get(i++));
         assertEquals("Second link <ld1>Link description</ld1><la1>http://second.url</la1>.", entries.get(i++));
-        assertEquals("Let's <e3>try</e3> some <e1>formatting</e1>.", entries.get(i++));
+        assertEquals("Let's <e2>try</e2> some <e1>formatting</e1>.", entries.get(i++));
         assertEquals("Water's chemical formula is H<sub1>2</sub1>O.", entries.get(i++));
         assertEquals("Water is <e2>essential</e2>!", entries.get(i++));
         assertEquals("1<sup1>st</sup1> and 2<sup1>nd</sup1> elements are <e1>H</e1> and <e1>He</e1>.", entries.get(i++));
@@ -108,7 +108,7 @@ public class PublishrFilterTest extends TestFilterBase {
         assertEquals("http://first.url", entries.get(i++));
         assertEquals("Second link <a2>Link description</a2>.", entries.get(i++));
         assertEquals("http://second.url", entries.get(i++));
-        assertEquals("Let's <e3>try</e3> some <e1>formatting</e1>.", entries.get(i++));
+        assertEquals("Let's <e2>try</e2> some <e1>formatting</e1>.", entries.get(i++));
         assertEquals("Water's chemical formula is H<s3>2</s3>O.", entries.get(i++));
         assertEquals("Water is <e2>essential</e2>!", entries.get(i++));
         assertEquals("1<s2>st</s2> and 2<s2>nd</s2> elements are <e1>H</e1> and <e1>He</e1>.", entries.get(i++));

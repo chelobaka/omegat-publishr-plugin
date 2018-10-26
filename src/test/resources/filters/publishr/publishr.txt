@@ -26,7 +26,7 @@ Here is an image ![Image description](image1.jpg).
 And here is a link [Link description](http://first.url).
 Second link [Link description](http://second.url).
 
-Let's ***try*** some *formatting*.
+Let's **try** some *formatting*.
 Water's chemical formula is H~2~O.
 Water is **essential**!
 1^st^ and 2^nd^ elements are *H* and *He*.
