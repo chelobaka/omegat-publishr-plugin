@@ -31,6 +31,9 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
 
+/**
+ * Types of elements.
+ */
 enum Element {
     EMPHASIS,
     STRONG,
@@ -45,24 +48,33 @@ enum Element {
 }
 
 
+/**
+ * Types of blocks.
+ */
 enum BlockType {
     TEXT,
     SHORTCUT,
     ELEMENT
 }
 
-
+/**
+ * Common stuff lives here.
+ */
 public final class Util {
 
-    public static final Formatter FORMATTER = new Formatter();
+    static final Formatter FORMATTER = new Formatter();
 
+    /**
+     * Configuration option name.
+     */
     public static final String PLAIN_SHORTCUTS = "plainShortcuts";
 
     static final String EF_TAG_NAME = "ef";
     static final Pattern EF_PATTERN = Pattern.compile(
             String.format("(<%s>)(.+?)(</%s>)", EF_TAG_NAME, EF_TAG_NAME));
 
-    final static Map<String, Element> FORMAT_ELEMENT_MAP = new LinkedHashMap<>();
+    static final Map<String, Element> FORMAT_ELEMENT_MAP = new LinkedHashMap<>();
+
     static {
         FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_EMPHASIS", Element.EMPHASIS);
         FORMAT_ELEMENT_MAP.put("POPUP_MENU_FORMAT_STRONG", Element.STRONG);
@@ -105,6 +117,8 @@ public final class Util {
     /**
      * Do not allow instances of this class.
      */
-    private Util() { }
+    private Util() {
+
+    }
 
 }

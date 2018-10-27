@@ -26,12 +26,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Format conversion manager.
+ */
 public class Formatter {
 
     private static final String CORK = "@@";
 
     private final Map<Element, ElementProcessor> processorMap;
 
+    /**
+     * Constructor.
+     */
     public Formatter() {
         processorMap = new LinkedHashMap<>();
 
@@ -130,14 +137,15 @@ public class Formatter {
                              final int textGroup, final int extraGroup,
                              final String left, final String right) {
 
-        ElementProcessor processor = new ElementProcessor(re, shortcutName, textGroup, extraGroup, left, right);
+        ElementProcessor processor = new ElementProcessor(re, shortcutName, textGroup, extraGroup,
+                left, right);
         processorMap.put(element, processor);
     }
 
     /**
      * Reset all converters.
      */
-    public void resetConverters() {
+    void resetConverters() {
         processorMap.values().forEach(ElementProcessor::reset);
     }
 
@@ -147,11 +155,12 @@ public class Formatter {
      * @param extras element specific extra strings
      * @return text with shortcuts
      */
-    public String toShortcuts(String text, Map<String, String> extras) {
+    String toShortcuts(final String text, final Map<String, String> extras) {
+        String result = text;
         for (ElementProcessor converter : processorMap.values()) {
-            text = converter.toShortcuts(text, extras);
+            result = converter.toShortcuts(result, extras);
         }
-        return text;
+        return result;
     }
 
     /**
@@ -160,11 +169,12 @@ public class Formatter {
      * @param extras element specific extra strings (like URL)
      * @return text with original formatting
      */
-    public String toOriginal(String text, Map<String, String> extras) {
+    String toOriginal(final String text, final Map<String, String> extras) {
+        String result = text;
         for (ElementProcessor converter : processorMap.values()) {
-            text = converter.toOriginal(text, extras);
+            result = converter.toOriginal(result, extras);
         }
-        return text;
+        return result;
     }
 
     /**
@@ -173,8 +183,7 @@ public class Formatter {
      * @param element element to wrap with
      * @return formatted text
      */
-    public String applyElement(String text, Element element) {
-
+    String applyElement(final String text, final Element element) {
         ElementProcessor processor = processorMap.get(element);
         if (processor == null) {
             return text;
@@ -184,11 +193,16 @@ public class Formatter {
 
     /**
      * Parse text structure. Can be used for highlighting.
-     * @param text input text
+     * @param input input text
      * @param findOriginal look for original elements?
      * @param findShortcuts look for shortcuts?
+     * @return list of text structure elements
      */
-    public List<FormatSpan> parseStructure(String text, boolean findOriginal, boolean findShortcuts) {
+    public List<FormatSpan> parseStructure(final String input,
+                                           final boolean findOriginal,
+                                           final boolean findShortcuts) {
+
+        String text = input;
 
         if (!findOriginal && !findShortcuts) {
             return null;
@@ -203,12 +217,12 @@ public class Formatter {
             List<FormatSpan> hits = converter.getFormatStructure(text, findOriginal, findShortcuts);
 
             for (FormatSpan span : hits) {
-                span.signature.element = element; // Elements are unknown to converters
+                span.getSignature().setElement(element); // Elements are unknown to converters
 
-                for (int i = span.begin; i < span.end; i++) {
+                for (int i = span.getBegin(); i < span.getEnd(); i++) {
                     // Overwrite only text cells
-                    if (layout[i] == null || layout[i].type == BlockType.TEXT) {
-                        layout[i] = span.signature;
+                    if (layout[i] == null || layout[i].getType() == BlockType.TEXT) {
+                        layout[i] = span.getSignature();
                     }
                 }
             }
@@ -218,13 +232,13 @@ public class Formatter {
                 StringBuilder sb = new StringBuilder();
                 int lastPosition = 0;
                 for (FormatSpan span : hits) {
-                    sb.append(text.substring(lastPosition, span.begin));
-                    if (span.signature.type == BlockType.ELEMENT) {
+                    sb.append(text.substring(lastPosition, span.getBegin()));
+                    if (span.getSignature().getType() == BlockType.ELEMENT) {
                         sb.append(CORK); // Simplified because we know element length
                     } else {
-                        sb.append(text.substring(span.begin, span.end));
+                        sb.append(text.substring(span.getBegin(), span.getEnd()));
                     }
-                    lastPosition = span.end;
+                    lastPosition = span.getEnd();
                 }
                 sb.append(text.substring(lastPosition, text.length()));
                 text = sb.toString();

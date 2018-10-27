@@ -27,7 +27,7 @@ import org.omegat.gui.editor.mark.Mark;
 import org.omegat.util.gui.Styles;
 
 import javax.swing.text.AttributeSet;
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +75,8 @@ class Highlighter implements IMarker {
         if (matcher.find()) {
             do {
                 for (int g = 1; g <= matcher.groupCount(); g++) {
-                    Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, matcher.start(g), matcher.end(g));
+                    Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, matcher.start(g),
+                            matcher.end(g));
                     mark.painter = null;
                     mark.attributes = HIGHLIGHT_ATTRS.get(g);
                     mark.toolTipText = Util.RB.getString("FOOTNOTE_HINT");
@@ -87,11 +88,12 @@ class Highlighter implements IMarker {
         // Original formatting
         List<FormatSpan> spans = Util.FORMATTER.parseStructure(translationText, true, false);
         for (FormatSpan span : spans) {
-            if (span.signature.type == BlockType.ELEMENT) {
-                Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, span.begin, span.end);
+            if (span.getSignature().getType() == BlockType.ELEMENT) {
+                Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, span.getBegin(), span.getEnd());
                 mark.painter = null;
                 mark.attributes = TAG_ATTRIBUTES;
-                mark.toolTipText = Util.RB.getString(TOOLTIP_ELEMENT_MAP.get(span.signature.element));
+                mark.toolTipText = Util.RB.getString(
+                        TOOLTIP_ELEMENT_MAP.get(span.getSignature().getElement()));
                 result.add(mark);
             }
         }

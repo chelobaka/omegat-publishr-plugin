@@ -22,11 +22,16 @@
 package com.pilulerouge.publishr.omegat;
 
 
-class FormatSignature {
-    final BlockType type;
-    Element element;
+import java.util.Objects;
 
-    public FormatSignature(BlockType type, Element element) {
+/**
+ * Combination of Element and BlockType.
+ */
+class FormatSignature {
+    private final BlockType type;
+    private Element element;
+
+    FormatSignature(final BlockType type, final Element element) {
         this.type = type;
         if (type == BlockType.TEXT) {
             this.element = null;
@@ -35,32 +40,66 @@ class FormatSignature {
         }
     }
 
+    BlockType getType() {
+        return type;
+    }
+
+    Element getElement() {
+        return element;
+    }
+
+    void setElement(final Element e) {
+        element = e;
+    }
+
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
+        if (o == null || o.getClass() != this.getClass()) {
+            return false;
+        }
         return ((FormatSignature) o).type == type && ((FormatSignature) o).element == element;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, element);
     }
 }
 
-
+/**
+ * Full metadata on text block.
+ */
 public class FormatSpan implements Comparable<FormatSpan> {
-    final int begin;
-    final int end;
-    final FormatSignature signature;
+    private final int begin;
+    private final int end;
+    private final FormatSignature signature;
 
-    public FormatSpan(BlockType type, Element element, int begin, int end) {
+    FormatSpan(final BlockType type, final Element element, final int begin, final int end) {
         this.begin = begin;
         this.end = end;
         signature = new FormatSignature(type, element);
     }
 
-    public FormatSpan(FormatSignature signature, int begin, int end) {
+    FormatSpan(final FormatSignature signature, final int begin, final int end) {
         this.begin = begin;
         this.end = end;
         this.signature = signature;
     }
 
+    int getBegin() {
+        return begin;
+    }
+
+    int getEnd() {
+        return end;
+    }
+
+    FormatSignature getSignature() {
+        return signature;
+    }
+
     @Override
-    public int compareTo(FormatSpan that) {
+    public int compareTo(final FormatSpan that) {
         return Integer.compare(this.begin, that.begin);
     }
 }

@@ -24,14 +24,24 @@ package com.pilulerouge.publishr.omegat;
 import org.omegat.util.OStrings;
 import org.openide.awt.Mnemonics;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import java.awt.Window;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Map;
 import java.util.TreeMap;
 
 
-public final class SettingsDialog extends JDialog {
+/**
+ * Settings dialog in OmegaT.
+ */
+final class SettingsDialog extends JDialog {
 
     private Map<String, String> options;
 
@@ -40,7 +50,12 @@ public final class SettingsDialog extends JDialog {
     private JButton buttonCancel;
     private JCheckBox plainFootnotesCheckBox;
 
-    public SettingsDialog(final Window parent, final Map<String, String> options) {
+    /**
+     * Constructor.
+     * @param parent partent window
+     * @param options options
+     */
+    SettingsDialog(final Window parent, final Map<String, String> options) {
         super(parent);
         initComponents();
 
@@ -64,17 +79,9 @@ public final class SettingsDialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -85,16 +92,14 @@ public final class SettingsDialog extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(final ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        contentPane.registerKeyboardAction(e -> onCancel(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         setLocationRelativeTo(parent);
     }
 
-    public Map<String, String> getOptions() {
+    Map<String, String> getOptions() {
         return options;
     }
 

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -35,6 +36,16 @@ import java.util.ResourceBundle;
  */
 public class UTF8Control extends ResourceBundle.Control {
 
+    /**
+     * Constructor.
+     * @param baseName base name of bundle
+     * @param locale locale
+     * @param format format
+     * @param loader classloader
+     * @param reload needs reload?
+     * @return new bundle
+     * @throws IOException oops!
+     */
     public ResourceBundle newBundle(final String baseName,
                                     final Locale locale,
                                     final String format,
@@ -60,7 +71,8 @@ public class UTF8Control extends ResourceBundle.Control {
         if (stream != null) {
             try {
                 // Only this line is changed to make it to read properties files as UTF-8.
-                bundle = new PropertyResourceBundle(new InputStreamReader(stream, "UTF-8"));
+                bundle = new PropertyResourceBundle(
+                        new InputStreamReader(stream, StandardCharsets.UTF_8));
             } finally {
                 stream.close();
             }

@@ -21,7 +21,11 @@
 
 package com.pilulerouge.publishr.omegat;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -181,7 +185,7 @@ public class ElementProcessor {
      * @param extras    mapping of source extra string to translated ones
      * @return          restored text
      */
-    public String toOriginal (final String text, final Map<String, String> extras) {
+    public String toOriginal(final String text, final Map<String, String> extras) {
         String result = text;
         // Replace shortcuts with actual formatting
         for (Map.Entry<String, String> scEntry : labelMap.entrySet()) {
@@ -218,15 +222,23 @@ public class ElementProcessor {
      * @param text text to format
      * @return formatted text or original text
      */
-    public String applyOriginalFormatting(String text) {
+    public String applyOriginalFormatting(final String text) {
         if (left != null && right != null) {
             return left + text + right;
         }
         return text;
     }
 
-    public List<FormatSpan> getFormatStructure(String text, boolean findOriginal,
-                                                    boolean findShortcuts) {
+    /**
+     * Find this element in given text.
+     * @param text source text
+     * @param findOriginal whether to find original formatting blocks
+     * @param findShortcuts whether to find shortcuts blocks
+     * @return list of element blocks
+     */
+    public List<FormatSpan> getFormatStructure(final String text,
+                                               final boolean findOriginal,
+                                               final boolean findShortcuts) {
 
         List<FormatSpan> result = new ArrayList<>();
 

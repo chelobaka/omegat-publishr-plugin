@@ -21,13 +21,21 @@
 
 package com.pilulerouge.publishr.omegat;
 
-import java.awt.*;
+
+import java.awt.Window;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -51,6 +59,9 @@ import org.omegat.util.Log;
  */
 public class PublishrFilter extends AbstractFilter {
 
+    /**
+     * Types of PublishR formatting.
+     */
     private enum FormattingType {
         BLOCK_QUOTE,
         HEADING,
@@ -62,6 +73,9 @@ public class PublishrFilter extends AbstractFilter {
         EMAIL
     }
 
+    /**
+     * Holds formatting metadata.
+     */
     private static class FormattingInfo {
 
         private Pattern pattern;
@@ -76,7 +90,10 @@ public class PublishrFilter extends AbstractFilter {
          * @param hasParam is there a parameter?
          * @param countChars count characters in param group instead of taking literal value
          */
-        FormattingInfo(String re, String rbName, boolean hasParam, boolean countChars) {
+        FormattingInfo(final String re,
+                       final String rbName,
+                       final boolean hasParam,
+                       final boolean countChars) {
             this.pattern = Pattern.compile(re);
             this.rbName = rbName;
             this.hasParam = hasParam;
@@ -88,7 +105,7 @@ public class PublishrFilter extends AbstractFilter {
          * @param s input string
          * @return description of format or null
          */
-        String getInfo(String s) {
+        String getInfo(final String s) {
             Matcher matcher = pattern.matcher(s);
             if (matcher.find()) {
                 String result = Util.RB.getString(rbName);
@@ -100,8 +117,7 @@ public class PublishrFilter extends AbstractFilter {
                     result += ": " + param;
                 }
                 return result;
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -113,6 +129,7 @@ public class PublishrFilter extends AbstractFilter {
     private static final String ESCAPED_ASTERISK_TAG = "<$@EA@$>";
 
     private static final Map<Pattern, Set<FormattingType>> SKIP_PATTERN_MAP;
+
     static {
         SKIP_PATTERN_MAP = new HashMap<>();
 
@@ -562,7 +579,8 @@ public class PublishrFilter extends AbstractFilter {
             String comment = null;
 
             if (!formattingComments.isEmpty()) {
-                String fComment = formattingComments.values().stream().collect(Collectors.joining(" / "));
+                String fComment = formattingComments.values().stream()
+                        .collect(Collectors.joining(" / "));
                 cb.append(fComment);
                 cb.append("\n");
             }
