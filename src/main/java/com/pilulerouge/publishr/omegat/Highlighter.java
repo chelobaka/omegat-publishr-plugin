@@ -40,25 +40,60 @@ import java.util.regex.Matcher;
  */
 class Highlighter implements IMarker {
 
-    private static final AttributeSet TAG_ATTRIBUTES = Styles
-            .createAttributeSet(new Color(0, 165, 23), null, null, null);
-    private static final AttributeSet EF_ATTRIBUTES = Styles
-            .createAttributeSet(new Color(56, 155, 205), null, null, null);
+    private AttributeSet tagAttributes;
+    private AttributeSet textAttributes;
+    private final Map<Integer, AttributeSet> highlightAttrs;
+    private final Map<Element, String> tooltipElementMap;
+    private boolean stylesAreSet;
 
-    private static final Map<Integer, AttributeSet> HIGHLIGHT_ATTRS;
-    static {
-        HIGHLIGHT_ATTRS = new HashMap<>();
-        HIGHLIGHT_ATTRS.put(1, TAG_ATTRIBUTES);
-        HIGHLIGHT_ATTRS.put(2, EF_ATTRIBUTES);
-        HIGHLIGHT_ATTRS.put(3, TAG_ATTRIBUTES);
+    /**
+     * Constructor.
+     */
+    Highlighter() {
+
+        stylesAreSet = false;
+
+        highlightAttrs = new HashMap<>();
+
+        // Build reverse element/text map for tooltips
+        tooltipElementMap = new HashMap<>();
+        Util.FORMAT_ELEMENT_MAP.entrySet().forEach(
+                e -> tooltipElementMap.put(e.getValue(), e.getKey())
+        );
     }
 
-    // Build reverse element/text map for tooltips
-    private static final Map<Element, String> TOOLTIP_ELEMENT_MAP = new HashMap<>();
-    static {
-        Util.FORMAT_ELEMENT_MAP.entrySet().forEach(
-                e -> TOOLTIP_ELEMENT_MAP.put(e.getValue(), e.getKey())
-        );
+    /**
+     * Setup highlight styles.
+     * This cannot be done in constructor since options become available to plugin only
+     * after loading project files.
+     * @param options plugin options
+     * @param force force styles updating (when changed through settings dialog)
+     */
+    void setupStyles(final Map<String, String> options, final boolean force) {
+
+        if (options == null || options.isEmpty()) {
+            return;
+        }
+
+        // Avoid redundant work.
+        if (stylesAreSet && !force) {
+            return;
+        }
+
+        // Get colors from options of take default ones.
+        Color tagColor = Color.decode(
+                options.getOrDefault(Util.EXTRA_TAG_COLOR, Util.DEFAULT_EXTRA_TAG_COLOR));
+        Color textColor = Color.decode(
+                options.getOrDefault(Util.EXTRA_TEXT_COLOR, Util.DEFAULT_EXTRA_TEXT_COLOR));
+
+        // Create and store text styles
+        tagAttributes = Styles.createAttributeSet(tagColor, null, null, null);
+        textAttributes = Styles.createAttributeSet(textColor, null, null, null);
+        highlightAttrs.put(1, tagAttributes);
+        highlightAttrs.put(2, textAttributes);
+        highlightAttrs.put(3, tagAttributes);
+
+        stylesAreSet = true;
     }
 
     public List<Mark> getMarksForEntry(final SourceTextEntry ste, final String sourceText,
@@ -78,7 +113,7 @@ class Highlighter implements IMarker {
                     Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, matcher.start(g),
                             matcher.end(g));
                     mark.painter = null;
-                    mark.attributes = HIGHLIGHT_ATTRS.get(g);
+                    mark.attributes = highlightAttrs.get(g);
                     mark.toolTipText = Util.RB.getString("FOOTNOTE_HINT");
                     result.add(mark);
                 }
@@ -91,9 +126,9 @@ class Highlighter implements IMarker {
             if (span.getSignature().getType() == BlockType.ELEMENT) {
                 Mark mark = new Mark(Mark.ENTRY_PART.TRANSLATION, span.getBegin(), span.getEnd());
                 mark.painter = null;
-                mark.attributes = TAG_ATTRIBUTES;
+                mark.attributes = tagAttributes;
                 mark.toolTipText = Util.RB.getString(
-                        TOOLTIP_ELEMENT_MAP.get(span.getSignature().getElement()));
+                        tooltipElementMap.get(span.getSignature().getElement()));
                 result.add(mark);
             }
         }

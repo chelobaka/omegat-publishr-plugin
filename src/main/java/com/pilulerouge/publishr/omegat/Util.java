@@ -65,9 +65,14 @@ public final class Util {
     static final Formatter FORMATTER = new Formatter();
 
     /**
-     * Configuration option name.
+     * Configuration option names.
      */
     public static final String PLAIN_SHORTCUTS = "plainShortcuts";
+    static final String EXTRA_TAG_COLOR = "extraTagColor";
+    static final String EXTRA_TEXT_COLOR = "extraTextColor";
+
+    static final String DEFAULT_EXTRA_TAG_COLOR = "#00A517";
+    static final String DEFAULT_EXTRA_TEXT_COLOR = "#389BCD";
 
     static final String EF_TAG_NAME = "ef";
     static final Pattern EF_PATTERN = Pattern.compile(

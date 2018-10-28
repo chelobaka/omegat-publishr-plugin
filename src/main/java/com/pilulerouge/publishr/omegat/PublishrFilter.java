@@ -280,15 +280,17 @@ public class PublishrFilter extends AbstractFilter {
 
     private static final String EXTRA_FOOTNOTE_MARKER = "[^omegat-%d]";
 
-    // Register marker
+    private static final Highlighter HIGHLIGHTER = new Highlighter();
     static {
-        Core.registerMarker(new Highlighter());
+        Core.registerMarker(HIGHLIGHTER);
     }
+
 
     /**
      * Constructor.
      */
     public PublishrFilter() {
+
         // Init objects for plain parsing mode
         tag2token = new HashMap<>();
         tokens2tags = new HashMap<>();
@@ -450,7 +452,11 @@ public class PublishrFilter extends AbstractFilter {
         try {
             SettingsDialog dialog = new SettingsDialog(parent, config);
             dialog.setVisible(true);
-            return dialog.getOptions();
+            Map<String, String> newOptions = dialog.getOptions();
+            if (newOptions != null) {
+                HIGHLIGHTER.setupStyles(newOptions, true);
+            }
+            return newOptions;
         } catch (Exception e) {
             Log.log(e);
             return null;
@@ -468,6 +474,10 @@ public class PublishrFilter extends AbstractFilter {
     @Override
     public void processFile(final BufferedReader reader, final BufferedWriter outfile,
             final FilterContext fc) throws IOException {
+
+        // Setup HIGHLIGHTER styles. Unfortunately it can be only here.
+        HIGHLIGHTER.setupStyles(processOptions, false);
+
         LinebreakPreservingReader lbpr = new LinebreakPreservingReader(reader);
 
         List<String> extraFootnotes = new ArrayList<>();
