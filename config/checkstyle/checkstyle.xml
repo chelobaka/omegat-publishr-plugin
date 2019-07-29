@@ -72,7 +72,7 @@
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
     <module name="Header">
-        <property name="headerFile" value="${basedir}/config/checkstyle/header.txt"/>
+        <property name="headerFile" value="${config_loc}/header.txt"/>
         <property name="fileExtensions" value="java"/>
     </module>
 
