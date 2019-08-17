@@ -111,16 +111,8 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
             pluginSubMenu.add(item);
         }
 
-        /* French quotes */
-        JMenuItem item = new JMenuItem();
-        item.setText(Util.RB.getString("POPUP_MENU_FORMAT_FRENCH_QUOTES"));
-        String quotesText = "«" + selection + "»";
-        item.addActionListener(e -> Core.getEditor().insertText(quotesText));
-        pluginSubMenu.addSeparator();
-        pluginSubMenu.add(item);
-
         /* Custom footnote item */
-        item = new JMenuItem();
+        JMenuItem item = new JMenuItem();
         item.setText(Util.RB.getString("POPUP_MENU_INSERT_FOOTNOTE"));
         item.addActionListener(e -> Core.getEditor().insertTag(EF_BODY));
         pluginSubMenu.addSeparator();
