@@ -87,7 +87,7 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
 
             JMenuItem item = new JMenuItem();
             item.setText(matcher.group(1) + "…" + matcher.group(3));
-            String insertion = matcher.group(1) + selection + matcher.group(3);
+            String insertion = encloseInMarks(selection, matcher.group(1), matcher.group(3));
             item.addActionListener(e -> Core.getEditor().insertText(insertion));
             pluginSubMenu.add(item);
         }
@@ -106,8 +106,16 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
         for (Map.Entry<String, Element> entry : Util.FORMAT_ELEMENT_MAP.entrySet()) {
             JMenuItem item = new JMenuItem();
             item.setText(Util.RB.getString(entry.getKey()));
-            String insertion = Util.FORMATTER.applyElement(selection, entry.getValue());
-            item.addActionListener(e -> Core.getEditor().insertText(insertion));
+            StringBuilder builder = new StringBuilder();
+            if (selection.startsWith(" ")) {
+                builder.append(" ");
+            }
+            String formattedSelection = Util.FORMATTER.applyElement(selection.trim(), entry.getValue());
+            builder.append(formattedSelection);
+            if (selection.endsWith(" ")) {
+                builder.append(" ");
+            }
+            item.addActionListener(e -> Core.getEditor().insertText(builder.toString()));
             pluginSubMenu.add(item);
         }
 
@@ -122,4 +130,19 @@ public class PopupMenuConstructor implements IPopupMenuConstructor {
         menu.add(pluginSubMenu);
         menu.addSeparator();
     }
+
+    private String encloseInMarks(String text, String leftMark, String rightMark) {
+        StringBuilder builder = new StringBuilder();
+        if (text.startsWith(" ")) {
+            builder.append(" ");
+        }
+        builder.append(leftMark);
+        builder.append(text.trim());
+        builder.append(rightMark);
+        if (text.endsWith(" ")) {
+            builder.append(" ");
+        }
+        return builder.toString();
+    }
+
 }

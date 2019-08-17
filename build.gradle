@@ -10,7 +10,7 @@ plugins {
 
 def pluginName = 'PublishR format support'
 
-version = '1.2'
+version = '1.2.1'
 
 repositories {
     maven {
